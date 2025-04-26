@@ -25,7 +25,8 @@ tokens = (
     'LIMIT',
     'WHERE',  # Novo token WHERE
     'AND',  # Novo token AND
-    'NUMBER'  # Novo token NUMBER
+    'NUMBER',  # Novo token NUMBER
+    'OR',
 )
 
 # Definindo palavras reservadas
@@ -40,6 +41,9 @@ reserved = {
     'RENAME': 'RENAME',
     'PRINT': 'PRINT',
     'LIMIT': 'LIMIT',
+    'OR': 'OR',
+    'WHERE': 'WHERE',
+    'AND': 'AND'
 }
 
 # Definindo expressões regulares para tokens
@@ -53,9 +57,7 @@ t_GREATER = r'>'
 t_LESS_EQUAL = r'<='
 t_GREATER_EQUAL = r'>='
 t_ignore = ' \t'  # Ignora espaços e tabulações
-t_WHERE = r'WHERE'
-t_AND = r'AND'
-t_NUMBER = r'\d+'
+t_NUMBER = r'\d+(\.\d+)?'
 
 # Regras para tokens específicos
 def t_SELECT(t):
@@ -71,6 +73,24 @@ def t_STRING(t):
     r'\"([^\\\n]|(\\.))*?\"'
     t.value = t.value[1:-1]
     return t
+
+#! Nao funciona
+#? Os comentarios estao no cql.interpreter.py linha 19
+# def t_COMMENT_LINE(t):
+#     r'--.*'
+#     pass
+
+# # Ignorar comentários de múltiplas linhas
+# def t_COMMENT_BLOCK(t):
+#     r'\{\-'            # Início do comentário {-
+#     t.lexer.begin('comment')  # Muda para um estado de "comentário"
+#     pass
+
+# # Estado de "comentário" para ler até o final do bloco de comentário
+# def t_comment_COMMENT_BLOCK(t):
+#     r'.*\-}'  # Captura qualquer coisa até o final do comentário -}
+#     t.lexer.begin('INITIAL')  # Retorna ao estado inicial após encontrar o final
+#     pass
 
 def t_NEWLINE(t):
     r'\n+'

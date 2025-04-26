@@ -1,5 +1,9 @@
 Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 
+Unused terminals:
+
+    OR
+
 Grammar
 
 Rule 0     S' -> command
@@ -12,62 +16,61 @@ Rule 6     command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list S
 Rule 7     command -> SELECT column_list FROM IDENTIFIER WHERE condition_list SEMICOLON
 Rule 8     command -> SELECT star_columns FROM IDENTIFIER SEMICOLON
 Rule 9     command -> SELECT column_list FROM IDENTIFIER SEMICOLON
-Rule 10    condition_list -> condition
-Rule 11    condition_list -> condition_list AND condition
-Rule 12    condition -> IDENTIFIER comparison_operator value
-Rule 13    comparison_operator -> EQUAL
-Rule 14    comparison_operator -> NOTEQUAL
-Rule 15    comparison_operator -> LESS
-Rule 16    comparison_operator -> GREATER
-Rule 17    comparison_operator -> LESS_EQUAL
-Rule 18    comparison_operator -> GREATER_EQUAL
-Rule 19    condition_list -> WHERE condition
-Rule 20    condition_list -> WHERE condition_list AND condition
-Rule 21    value -> STRING
-Rule 22    value -> NUMBER
-Rule 23    command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
-Rule 24    command -> SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
-Rule 25    star_columns -> STAR
-Rule 26    column_list -> IDENTIFIER
-Rule 27    column_list -> column_list COMMA IDENTIFIER
+Rule 10    command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
+Rule 11    command -> SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
+Rule 12    star_columns -> STAR
+Rule 13    column_list -> IDENTIFIER
+Rule 14    column_list -> column_list COMMA IDENTIFIER
+Rule 15    condition_list -> condition
+Rule 16    condition_list -> condition_list AND condition
+Rule 17    condition -> IDENTIFIER comparison_operator value
+Rule 18    comparison_operator -> EQUAL
+Rule 19    comparison_operator -> NOTEQUAL
+Rule 20    comparison_operator -> LESS
+Rule 21    comparison_operator -> GREATER
+Rule 22    comparison_operator -> LESS_EQUAL
+Rule 23    comparison_operator -> GREATER_EQUAL
+Rule 24    value -> STRING
+Rule 25    value -> NUMBER
 
 Terminals, with rules where they appear
 
-AND                  : 11 20
+AND                  : 16
 AS                   : 2
-COMMA                : 27
+COMMA                : 14
 DISCARD              : 3
-EQUAL                : 13
+EQUAL                : 18
 EXPORT               : 2
-FROM                 : 1 6 7 8 9 23 24
-GREATER              : 16
-GREATER_EQUAL        : 18
-IDENTIFIER           : 1 2 3 4 4 5 6 7 8 9 12 23 24 26 27
+FROM                 : 1 6 7 8 9 10 11
+GREATER              : 21
+GREATER_EQUAL        : 23
+IDENTIFIER           : 1 2 3 4 4 5 6 7 8 9 10 11 13 14 17
 IMPORT               : 1
-LESS                 : 15
-LESS_EQUAL           : 17
-LIMIT                : 23 24
-NOTEQUAL             : 14
-NUMBER               : 22 23 24
+LESS                 : 20
+LESS_EQUAL           : 22
+LIMIT                : 10 11
+NOTEQUAL             : 19
+NUMBER               : 10 11 25
+OR                   : 
 PRINT                : 5
 RENAME               : 4
-SELECT               : 6 7 8 9 23 24
-SEMICOLON            : 1 2 3 4 5 6 7 8 9 23 24
-STAR                 : 25
-STRING               : 1 2 21
+SELECT               : 6 7 8 9 10 11
+SEMICOLON            : 1 2 3 4 5 6 7 8 9 10 11
+STAR                 : 12
+STRING               : 1 2 24
 TABLE                : 1 2 3 4 5
-WHERE                : 6 7 19 20 23 24
+WHERE                : 6 7 10 11
 error                : 
 
 Nonterminals, with rules where they appear
 
-column_list          : 7 9 24 27
+column_list          : 7 9 11 14
 command              : 0
-comparison_operator  : 12
-condition            : 10 11 19 20
-condition_list       : 6 7 11 20 23 24
-star_columns         : 6 8 23
-value                : 12
+comparison_operator  : 17
+condition            : 15 16
+condition_list       : 6 7 10 11 16
+star_columns         : 6 8 10
+value                : 17
 
 Parsing method: LALR
 
@@ -83,8 +86,8 @@ state 0
     (7) command -> . SELECT column_list FROM IDENTIFIER WHERE condition_list SEMICOLON
     (8) command -> . SELECT star_columns FROM IDENTIFIER SEMICOLON
     (9) command -> . SELECT column_list FROM IDENTIFIER SEMICOLON
-    (23) command -> . SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
-    (24) command -> . SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
+    (10) command -> . SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
+    (11) command -> . SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
 
     IMPORT          shift and go to state 2
     EXPORT          shift and go to state 3
@@ -142,11 +145,11 @@ state 7
     (7) command -> SELECT . column_list FROM IDENTIFIER WHERE condition_list SEMICOLON
     (8) command -> SELECT . star_columns FROM IDENTIFIER SEMICOLON
     (9) command -> SELECT . column_list FROM IDENTIFIER SEMICOLON
-    (23) command -> SELECT . star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
-    (24) command -> SELECT . column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
-    (25) star_columns -> . STAR
-    (26) column_list -> . IDENTIFIER
-    (27) column_list -> . column_list COMMA IDENTIFIER
+    (10) command -> SELECT . star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
+    (11) command -> SELECT . column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
+    (12) star_columns -> . STAR
+    (13) column_list -> . IDENTIFIER
+    (14) column_list -> . column_list COMMA IDENTIFIER
 
     STAR            shift and go to state 16
     IDENTIFIER      shift and go to state 14
@@ -193,25 +196,25 @@ state 13
 
     (6) command -> SELECT star_columns . FROM IDENTIFIER WHERE condition_list SEMICOLON
     (8) command -> SELECT star_columns . FROM IDENTIFIER SEMICOLON
-    (23) command -> SELECT star_columns . FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
+    (10) command -> SELECT star_columns . FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
 
     FROM            shift and go to state 22
 
 
 state 14
 
-    (26) column_list -> IDENTIFIER .
+    (13) column_list -> IDENTIFIER .
 
-    FROM            reduce using rule 26 (column_list -> IDENTIFIER .)
-    COMMA           reduce using rule 26 (column_list -> IDENTIFIER .)
+    FROM            reduce using rule 13 (column_list -> IDENTIFIER .)
+    COMMA           reduce using rule 13 (column_list -> IDENTIFIER .)
 
 
 state 15
 
     (7) command -> SELECT column_list . FROM IDENTIFIER WHERE condition_list SEMICOLON
     (9) command -> SELECT column_list . FROM IDENTIFIER SEMICOLON
-    (24) command -> SELECT column_list . FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
-    (27) column_list -> column_list . COMMA IDENTIFIER
+    (11) command -> SELECT column_list . FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
+    (14) column_list -> column_list . COMMA IDENTIFIER
 
     FROM            shift and go to state 23
     COMMA           shift and go to state 24
@@ -219,9 +222,9 @@ state 15
 
 state 16
 
-    (25) star_columns -> STAR .
+    (12) star_columns -> STAR .
 
-    FROM            reduce using rule 25 (star_columns -> STAR .)
+    FROM            reduce using rule 12 (star_columns -> STAR .)
 
 
 state 17
@@ -263,7 +266,7 @@ state 22
 
     (6) command -> SELECT star_columns FROM . IDENTIFIER WHERE condition_list SEMICOLON
     (8) command -> SELECT star_columns FROM . IDENTIFIER SEMICOLON
-    (23) command -> SELECT star_columns FROM . IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
+    (10) command -> SELECT star_columns FROM . IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
 
     IDENTIFIER      shift and go to state 30
 
@@ -272,14 +275,14 @@ state 23
 
     (7) command -> SELECT column_list FROM . IDENTIFIER WHERE condition_list SEMICOLON
     (9) command -> SELECT column_list FROM . IDENTIFIER SEMICOLON
-    (24) command -> SELECT column_list FROM . IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
+    (11) command -> SELECT column_list FROM . IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
 
     IDENTIFIER      shift and go to state 31
 
 
 state 24
 
-    (27) column_list -> column_list COMMA . IDENTIFIER
+    (14) column_list -> column_list COMMA . IDENTIFIER
 
     IDENTIFIER      shift and go to state 32
 
@@ -323,7 +326,7 @@ state 30
 
     (6) command -> SELECT star_columns FROM IDENTIFIER . WHERE condition_list SEMICOLON
     (8) command -> SELECT star_columns FROM IDENTIFIER . SEMICOLON
-    (23) command -> SELECT star_columns FROM IDENTIFIER . WHERE condition_list LIMIT NUMBER SEMICOLON
+    (10) command -> SELECT star_columns FROM IDENTIFIER . WHERE condition_list LIMIT NUMBER SEMICOLON
 
     WHERE           shift and go to state 36
     SEMICOLON       shift and go to state 37
@@ -333,7 +336,7 @@ state 31
 
     (7) command -> SELECT column_list FROM IDENTIFIER . WHERE condition_list SEMICOLON
     (9) command -> SELECT column_list FROM IDENTIFIER . SEMICOLON
-    (24) command -> SELECT column_list FROM IDENTIFIER . WHERE condition_list LIMIT NUMBER SEMICOLON
+    (11) command -> SELECT column_list FROM IDENTIFIER . WHERE condition_list LIMIT NUMBER SEMICOLON
 
     WHERE           shift and go to state 38
     SEMICOLON       shift and go to state 39
@@ -341,10 +344,10 @@ state 31
 
 state 32
 
-    (27) column_list -> column_list COMMA IDENTIFIER .
+    (14) column_list -> column_list COMMA IDENTIFIER .
 
-    FROM            reduce using rule 27 (column_list -> column_list COMMA IDENTIFIER .)
-    COMMA           reduce using rule 27 (column_list -> column_list COMMA IDENTIFIER .)
+    FROM            reduce using rule 14 (column_list -> column_list COMMA IDENTIFIER .)
+    COMMA           reduce using rule 14 (column_list -> column_list COMMA IDENTIFIER .)
 
 
 state 33
@@ -371,18 +374,15 @@ state 35
 state 36
 
     (6) command -> SELECT star_columns FROM IDENTIFIER WHERE . condition_list SEMICOLON
-    (23) command -> SELECT star_columns FROM IDENTIFIER WHERE . condition_list LIMIT NUMBER SEMICOLON
-    (10) condition_list -> . condition
-    (11) condition_list -> . condition_list AND condition
-    (19) condition_list -> . WHERE condition
-    (20) condition_list -> . WHERE condition_list AND condition
-    (12) condition -> . IDENTIFIER comparison_operator value
+    (10) command -> SELECT star_columns FROM IDENTIFIER WHERE . condition_list LIMIT NUMBER SEMICOLON
+    (15) condition_list -> . condition
+    (16) condition_list -> . condition_list AND condition
+    (17) condition -> . IDENTIFIER comparison_operator value
 
-    WHERE           shift and go to state 43
     IDENTIFIER      shift and go to state 42
 
-    condition_list                 shift and go to state 44
-    condition                      shift and go to state 45
+    condition_list                 shift and go to state 43
+    condition                      shift and go to state 44
 
 state 37
 
@@ -394,18 +394,15 @@ state 37
 state 38
 
     (7) command -> SELECT column_list FROM IDENTIFIER WHERE . condition_list SEMICOLON
-    (24) command -> SELECT column_list FROM IDENTIFIER WHERE . condition_list LIMIT NUMBER SEMICOLON
-    (10) condition_list -> . condition
-    (11) condition_list -> . condition_list AND condition
-    (19) condition_list -> . WHERE condition
-    (20) condition_list -> . WHERE condition_list AND condition
-    (12) condition -> . IDENTIFIER comparison_operator value
+    (11) command -> SELECT column_list FROM IDENTIFIER WHERE . condition_list LIMIT NUMBER SEMICOLON
+    (15) condition_list -> . condition
+    (16) condition_list -> . condition_list AND condition
+    (17) condition -> . IDENTIFIER comparison_operator value
 
-    WHERE           shift and go to state 43
     IDENTIFIER      shift and go to state 42
 
-    condition_list                 shift and go to state 46
-    condition                      shift and go to state 45
+    condition_list                 shift and go to state 45
+    condition                      shift and go to state 44
 
 state 39
 
@@ -430,277 +427,210 @@ state 41
 
 state 42
 
-    (12) condition -> IDENTIFIER . comparison_operator value
-    (13) comparison_operator -> . EQUAL
-    (14) comparison_operator -> . NOTEQUAL
-    (15) comparison_operator -> . LESS
-    (16) comparison_operator -> . GREATER
-    (17) comparison_operator -> . LESS_EQUAL
-    (18) comparison_operator -> . GREATER_EQUAL
+    (17) condition -> IDENTIFIER . comparison_operator value
+    (18) comparison_operator -> . EQUAL
+    (19) comparison_operator -> . NOTEQUAL
+    (20) comparison_operator -> . LESS
+    (21) comparison_operator -> . GREATER
+    (22) comparison_operator -> . LESS_EQUAL
+    (23) comparison_operator -> . GREATER_EQUAL
 
-    EQUAL           shift and go to state 48
-    NOTEQUAL        shift and go to state 49
-    LESS            shift and go to state 50
-    GREATER         shift and go to state 51
-    LESS_EQUAL      shift and go to state 52
-    GREATER_EQUAL   shift and go to state 53
+    EQUAL           shift and go to state 47
+    NOTEQUAL        shift and go to state 48
+    LESS            shift and go to state 49
+    GREATER         shift and go to state 50
+    LESS_EQUAL      shift and go to state 51
+    GREATER_EQUAL   shift and go to state 52
 
-    comparison_operator            shift and go to state 47
+    comparison_operator            shift and go to state 46
 
 state 43
 
-    (19) condition_list -> WHERE . condition
-    (20) condition_list -> WHERE . condition_list AND condition
-    (12) condition -> . IDENTIFIER comparison_operator value
-    (10) condition_list -> . condition
-    (11) condition_list -> . condition_list AND condition
-    (19) condition_list -> . WHERE condition
-    (20) condition_list -> . WHERE condition_list AND condition
+    (6) command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list . SEMICOLON
+    (10) command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list . LIMIT NUMBER SEMICOLON
+    (16) condition_list -> condition_list . AND condition
 
-    IDENTIFIER      shift and go to state 42
-    WHERE           shift and go to state 43
+    SEMICOLON       shift and go to state 53
+    LIMIT           shift and go to state 54
+    AND             shift and go to state 55
 
-    condition                      shift and go to state 54
-    condition_list                 shift and go to state 55
 
 state 44
 
-    (6) command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list . SEMICOLON
-    (23) command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list . LIMIT NUMBER SEMICOLON
-    (11) condition_list -> condition_list . AND condition
+    (15) condition_list -> condition .
 
-    SEMICOLON       shift and go to state 56
-    LIMIT           shift and go to state 57
-    AND             shift and go to state 58
+    SEMICOLON       reduce using rule 15 (condition_list -> condition .)
+    LIMIT           reduce using rule 15 (condition_list -> condition .)
+    AND             reduce using rule 15 (condition_list -> condition .)
 
 
 state 45
 
-    (10) condition_list -> condition .
+    (7) command -> SELECT column_list FROM IDENTIFIER WHERE condition_list . SEMICOLON
+    (11) command -> SELECT column_list FROM IDENTIFIER WHERE condition_list . LIMIT NUMBER SEMICOLON
+    (16) condition_list -> condition_list . AND condition
 
-    SEMICOLON       reduce using rule 10 (condition_list -> condition .)
-    LIMIT           reduce using rule 10 (condition_list -> condition .)
-    AND             reduce using rule 10 (condition_list -> condition .)
+    SEMICOLON       shift and go to state 56
+    LIMIT           shift and go to state 57
+    AND             shift and go to state 55
 
 
 state 46
 
-    (7) command -> SELECT column_list FROM IDENTIFIER WHERE condition_list . SEMICOLON
-    (24) command -> SELECT column_list FROM IDENTIFIER WHERE condition_list . LIMIT NUMBER SEMICOLON
-    (11) condition_list -> condition_list . AND condition
+    (17) condition -> IDENTIFIER comparison_operator . value
+    (24) value -> . STRING
+    (25) value -> . NUMBER
 
-    SEMICOLON       shift and go to state 59
-    LIMIT           shift and go to state 60
-    AND             shift and go to state 58
+    STRING          shift and go to state 59
+    NUMBER          shift and go to state 60
 
+    value                          shift and go to state 58
 
 state 47
 
-    (12) condition -> IDENTIFIER comparison_operator . value
-    (21) value -> . STRING
-    (22) value -> . NUMBER
+    (18) comparison_operator -> EQUAL .
 
-    STRING          shift and go to state 62
-    NUMBER          shift and go to state 63
+    STRING          reduce using rule 18 (comparison_operator -> EQUAL .)
+    NUMBER          reduce using rule 18 (comparison_operator -> EQUAL .)
 
-    value                          shift and go to state 61
 
 state 48
 
-    (13) comparison_operator -> EQUAL .
+    (19) comparison_operator -> NOTEQUAL .
 
-    STRING          reduce using rule 13 (comparison_operator -> EQUAL .)
-    NUMBER          reduce using rule 13 (comparison_operator -> EQUAL .)
+    STRING          reduce using rule 19 (comparison_operator -> NOTEQUAL .)
+    NUMBER          reduce using rule 19 (comparison_operator -> NOTEQUAL .)
 
 
 state 49
 
-    (14) comparison_operator -> NOTEQUAL .
+    (20) comparison_operator -> LESS .
 
-    STRING          reduce using rule 14 (comparison_operator -> NOTEQUAL .)
-    NUMBER          reduce using rule 14 (comparison_operator -> NOTEQUAL .)
+    STRING          reduce using rule 20 (comparison_operator -> LESS .)
+    NUMBER          reduce using rule 20 (comparison_operator -> LESS .)
 
 
 state 50
 
-    (15) comparison_operator -> LESS .
+    (21) comparison_operator -> GREATER .
 
-    STRING          reduce using rule 15 (comparison_operator -> LESS .)
-    NUMBER          reduce using rule 15 (comparison_operator -> LESS .)
+    STRING          reduce using rule 21 (comparison_operator -> GREATER .)
+    NUMBER          reduce using rule 21 (comparison_operator -> GREATER .)
 
 
 state 51
 
-    (16) comparison_operator -> GREATER .
+    (22) comparison_operator -> LESS_EQUAL .
 
-    STRING          reduce using rule 16 (comparison_operator -> GREATER .)
-    NUMBER          reduce using rule 16 (comparison_operator -> GREATER .)
+    STRING          reduce using rule 22 (comparison_operator -> LESS_EQUAL .)
+    NUMBER          reduce using rule 22 (comparison_operator -> LESS_EQUAL .)
 
 
 state 52
 
-    (17) comparison_operator -> LESS_EQUAL .
+    (23) comparison_operator -> GREATER_EQUAL .
 
-    STRING          reduce using rule 17 (comparison_operator -> LESS_EQUAL .)
-    NUMBER          reduce using rule 17 (comparison_operator -> LESS_EQUAL .)
+    STRING          reduce using rule 23 (comparison_operator -> GREATER_EQUAL .)
+    NUMBER          reduce using rule 23 (comparison_operator -> GREATER_EQUAL .)
 
 
 state 53
-
-    (18) comparison_operator -> GREATER_EQUAL .
-
-    STRING          reduce using rule 18 (comparison_operator -> GREATER_EQUAL .)
-    NUMBER          reduce using rule 18 (comparison_operator -> GREATER_EQUAL .)
-
-
-state 54
-
-    (19) condition_list -> WHERE condition .
-    (10) condition_list -> condition .
-
-  ! reduce/reduce conflict for AND resolved using rule 10 (condition_list -> condition .)
-    SEMICOLON       reduce using rule 19 (condition_list -> WHERE condition .)
-    LIMIT           reduce using rule 19 (condition_list -> WHERE condition .)
-    AND             reduce using rule 10 (condition_list -> condition .)
-
-  ! AND             [ reduce using rule 19 (condition_list -> WHERE condition .) ]
-
-
-state 55
-
-    (20) condition_list -> WHERE condition_list . AND condition
-    (11) condition_list -> condition_list . AND condition
-
-    AND             shift and go to state 64
-
-
-state 56
 
     (6) command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list SEMICOLON .
 
     $end            reduce using rule 6 (command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list SEMICOLON .)
 
 
-state 57
+state 54
 
-    (23) command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT . NUMBER SEMICOLON
+    (10) command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT . NUMBER SEMICOLON
 
-    NUMBER          shift and go to state 65
+    NUMBER          shift and go to state 61
 
 
-state 58
+state 55
 
-    (11) condition_list -> condition_list AND . condition
-    (12) condition -> . IDENTIFIER comparison_operator value
+    (16) condition_list -> condition_list AND . condition
+    (17) condition -> . IDENTIFIER comparison_operator value
 
     IDENTIFIER      shift and go to state 42
 
-    condition                      shift and go to state 66
+    condition                      shift and go to state 62
 
-state 59
+state 56
 
     (7) command -> SELECT column_list FROM IDENTIFIER WHERE condition_list SEMICOLON .
 
     $end            reduce using rule 7 (command -> SELECT column_list FROM IDENTIFIER WHERE condition_list SEMICOLON .)
 
 
+state 57
+
+    (11) command -> SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT . NUMBER SEMICOLON
+
+    NUMBER          shift and go to state 63
+
+
+state 58
+
+    (17) condition -> IDENTIFIER comparison_operator value .
+
+    SEMICOLON       reduce using rule 17 (condition -> IDENTIFIER comparison_operator value .)
+    LIMIT           reduce using rule 17 (condition -> IDENTIFIER comparison_operator value .)
+    AND             reduce using rule 17 (condition -> IDENTIFIER comparison_operator value .)
+
+
+state 59
+
+    (24) value -> STRING .
+
+    SEMICOLON       reduce using rule 24 (value -> STRING .)
+    LIMIT           reduce using rule 24 (value -> STRING .)
+    AND             reduce using rule 24 (value -> STRING .)
+
+
 state 60
 
-    (24) command -> SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT . NUMBER SEMICOLON
+    (25) value -> NUMBER .
 
-    NUMBER          shift and go to state 67
+    SEMICOLON       reduce using rule 25 (value -> NUMBER .)
+    LIMIT           reduce using rule 25 (value -> NUMBER .)
+    AND             reduce using rule 25 (value -> NUMBER .)
 
 
 state 61
 
-    (12) condition -> IDENTIFIER comparison_operator value .
+    (10) command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER . SEMICOLON
 
-    SEMICOLON       reduce using rule 12 (condition -> IDENTIFIER comparison_operator value .)
-    LIMIT           reduce using rule 12 (condition -> IDENTIFIER comparison_operator value .)
-    AND             reduce using rule 12 (condition -> IDENTIFIER comparison_operator value .)
+    SEMICOLON       shift and go to state 64
 
 
 state 62
 
-    (21) value -> STRING .
+    (16) condition_list -> condition_list AND condition .
 
-    SEMICOLON       reduce using rule 21 (value -> STRING .)
-    LIMIT           reduce using rule 21 (value -> STRING .)
-    AND             reduce using rule 21 (value -> STRING .)
+    SEMICOLON       reduce using rule 16 (condition_list -> condition_list AND condition .)
+    LIMIT           reduce using rule 16 (condition_list -> condition_list AND condition .)
+    AND             reduce using rule 16 (condition_list -> condition_list AND condition .)
 
 
 state 63
 
-    (22) value -> NUMBER .
+    (11) command -> SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER . SEMICOLON
 
-    SEMICOLON       reduce using rule 22 (value -> NUMBER .)
-    LIMIT           reduce using rule 22 (value -> NUMBER .)
-    AND             reduce using rule 22 (value -> NUMBER .)
+    SEMICOLON       shift and go to state 65
 
 
 state 64
 
-    (20) condition_list -> WHERE condition_list AND . condition
-    (11) condition_list -> condition_list AND . condition
-    (12) condition -> . IDENTIFIER comparison_operator value
+    (10) command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON .
 
-    IDENTIFIER      shift and go to state 42
+    $end            reduce using rule 10 (command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON .)
 
-    condition                      shift and go to state 68
 
 state 65
 
-    (23) command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER . SEMICOLON
+    (11) command -> SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON .
 
-    SEMICOLON       shift and go to state 69
+    $end            reduce using rule 11 (command -> SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON .)
 
-
-state 66
-
-    (11) condition_list -> condition_list AND condition .
-
-    SEMICOLON       reduce using rule 11 (condition_list -> condition_list AND condition .)
-    LIMIT           reduce using rule 11 (condition_list -> condition_list AND condition .)
-    AND             reduce using rule 11 (condition_list -> condition_list AND condition .)
-
-
-state 67
-
-    (24) command -> SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER . SEMICOLON
-
-    SEMICOLON       shift and go to state 70
-
-
-state 68
-
-    (20) condition_list -> WHERE condition_list AND condition .
-    (11) condition_list -> condition_list AND condition .
-
-  ! reduce/reduce conflict for AND resolved using rule 11 (condition_list -> condition_list AND condition .)
-    SEMICOLON       reduce using rule 20 (condition_list -> WHERE condition_list AND condition .)
-    LIMIT           reduce using rule 20 (condition_list -> WHERE condition_list AND condition .)
-    AND             reduce using rule 11 (condition_list -> condition_list AND condition .)
-
-  ! AND             [ reduce using rule 20 (condition_list -> WHERE condition_list AND condition .) ]
-
-
-state 69
-
-    (23) command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON .
-
-    $end            reduce using rule 23 (command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON .)
-
-
-state 70
-
-    (24) command -> SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON .
-
-    $end            reduce using rule 24 (command -> SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON .)
-
-WARNING: 
-WARNING: Conflicts:
-WARNING: 
-WARNING: reduce/reduce conflict in state 54 resolved using rule (condition_list -> condition)
-WARNING: rejected rule (condition_list -> WHERE condition) in state 54
-WARNING: reduce/reduce conflict in state 68 resolved using rule (condition_list -> condition_list AND condition)
-WARNING: rejected rule (condition_list -> WHERE condition_list AND condition) in state 68
