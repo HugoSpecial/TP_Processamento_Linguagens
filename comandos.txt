@@ -1,6 +1,7 @@
   Nota: Modifiquei o ficheiro do observacoes.csv para ter o numero de resultados condizente com o numero de colunas
 
   COMANDOS QUE FUNCIONAM
+  import table estacoes from "estacoes.csv";
   print table estacoes;
   RENAME TABLE estacoes est;
   discard table estacoes;
@@ -17,11 +18,11 @@
   select Id from estacoes;
   select Local from estacoes;
   select Id, Local from estacoes;
+  create table obs SELECT Temperatura FROM observacoes WHERE Temperatura < 22;
 
 
   COMANDOS QUE NAO FUNCIONAM
   SELECT * FROM observacoes LIMIT 3; nao sei se tem de funcionar este
 
   O QUE FALTA
-  Alinea C, D e E
-  Meter o limit a dar
+  Alinea C(Falta a parte do "USING"), D e E

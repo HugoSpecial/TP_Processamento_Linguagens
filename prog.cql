@@ -1,3 +1,3 @@
 import table observacoes from "observacoes.csv";
-SELECT Temperatura FROM observacoes WHERE Temperatura > 22;
-SELECT * FROM observacoes WHERE IntensidadeVentoKM > 3 LIMIT 3;
+create table obs SELECT Temperatura FROM observacoes WHERE Temperatura < 22;
+select * from obs where Temperatura = 12.5;

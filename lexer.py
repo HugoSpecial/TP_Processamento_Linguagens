@@ -8,6 +8,7 @@ states = (
 # Adicionando os tokens necessários
 tokens = (
     'IMPORT',
+    'CREATE',
     'EXPORT',
     'DISCARD',
     'RENAME',
@@ -36,6 +37,7 @@ tokens = (
 # Definindo palavras reservadas
 reserved = {
     'IMPORT': 'IMPORT',
+    'CREATE':'CREATE',
     'EXPORT': 'EXPORT',
     'TABLE': 'TABLE',
     'FROM': 'FROM',

@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'AND AS COMMA DISCARD EQUAL EXPORT FROM GREATER GREATER_EQUAL IDENTIFIER IMPORT LESS LESS_EQUAL LIMIT NOTEQUAL NUMBER PRINT RENAME SELECT SEMICOLON STAR STRING TABLE WHERE\ncommand : IMPORT TABLE IDENTIFIER FROM STRING SEMICOLON\n\ncommand : EXPORT TABLE IDENTIFIER AS STRING SEMICOLON\n\ncommand : DISCARD TABLE IDENTIFIER SEMICOLON\n\ncommand : RENAME TABLE IDENTIFIER IDENTIFIER SEMICOLON\n\ncommand : PRINT TABLE IDENTIFIER SEMICOLON\n\ncommand : SELECT star_columns FROM IDENTIFIER WHERE condition_list SEMICOLON\n        | SELECT column_list FROM IDENTIFIER WHERE condition_list SEMICOLON\n        | SELECT star_columns FROM IDENTIFIER SEMICOLON\n        | SELECT column_list FROM IDENTIFIER SEMICOLON\n\ncommand : SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON\n        | SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON\n\nstar_columns : STAR\n\ncolumn_list : IDENTIFIER\n            | column_list COMMA IDENTIFIER\n\ncondition_list : condition\n               | condition_list AND condition\n\ncondition : IDENTIFIER comparison_operator value\n\ncomparison_operator : EQUAL\n                    | NOTEQUAL\n                    | LESS\n                    | GREATER\n                    | LESS_EQUAL\n                    | GREATER_EQUAL\n\nvalue : STRING\n      | NUMBER\n'
+_lr_signature = 'AND AS COMMA CREATE DISCARD EQUAL EXPORT FROM GREATER GREATER_EQUAL IDENTIFIER IMPORT LESS LESS_EQUAL LIMIT NOTEQUAL NUMBER PRINT RENAME SELECT SEMICOLON STAR STRING TABLE WHERE\ncommand : IMPORT TABLE IDENTIFIER FROM STRING SEMICOLON\n\ncommand : EXPORT TABLE IDENTIFIER AS STRING SEMICOLON\n\ncommand : DISCARD TABLE IDENTIFIER SEMICOLON\n\ncommand : RENAME TABLE IDENTIFIER IDENTIFIER SEMICOLON\n\ncommand : PRINT TABLE IDENTIFIER SEMICOLON\n\ncommand : SELECT star_columns FROM IDENTIFIER WHERE condition_list SEMICOLON\n        | SELECT column_list FROM IDENTIFIER WHERE condition_list SEMICOLON\n        | SELECT star_columns FROM IDENTIFIER SEMICOLON\n        | SELECT column_list FROM IDENTIFIER SEMICOLON\n\ncommand : SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON\n        | SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON\n\ncommand : CREATE TABLE IDENTIFIER SELECT star_columns FROM IDENTIFIER WHERE condition_list SEMICOLON\n        | CREATE TABLE IDENTIFIER SELECT column_list FROM IDENTIFIER WHERE condition_list SEMICOLON\n\nstar_columns : STAR\n\ncolumn_list : IDENTIFIER\n            | column_list COMMA IDENTIFIER\n\ncondition_list : condition\n               | condition_list AND condition\n\ncondition : IDENTIFIER comparison_operator value\n\ncomparison_operator : EQUAL\n                    | NOTEQUAL\n                    | LESS\n                    | GREATER\n                    | LESS_EQUAL\n                    | GREATER_EQUAL\n\nvalue : STRING\n      | NUMBER\n'
     
-_lr_action_items = {'IMPORT':([0,],[2,]),'EXPORT':([0,],[3,]),'DISCARD':([0,],[4,]),'RENAME':([0,],[5,]),'PRINT':([0,],[6,]),'SELECT':([0,],[7,]),'$end':([1,27,29,35,37,39,40,41,53,56,64,65,],[0,-3,-5,-4,-8,-9,-1,-2,-6,-7,-10,-11,]),'TABLE':([2,3,4,5,6,],[8,9,10,11,12,]),'STAR':([7,],[16,]),'IDENTIFIER':([7,8,9,10,11,12,20,22,23,24,36,38,55,],[14,17,18,19,20,21,28,30,31,32,42,42,42,]),'FROM':([13,14,15,16,17,32,],[22,-13,23,-12,25,-14,]),'COMMA':([14,15,32,],[-13,24,-14,]),'AS':([18,],[26,]),'SEMICOLON':([19,21,28,30,31,33,34,43,44,45,58,59,60,61,62,63,],[27,29,35,37,39,40,41,53,-15,56,-17,-24,-25,64,-16,65,]),'STRING':([25,26,46,47,48,49,50,51,52,],[33,34,59,-18,-19,-20,-21,-22,-23,]),'WHERE':([30,31,],[36,38,]),'EQUAL':([42,],[47,]),'NOTEQUAL':([42,],[48,]),'LESS':([42,],[49,]),'GREATER':([42,],[50,]),'LESS_EQUAL':([42,],[51,]),'GREATER_EQUAL':([42,],[52,]),'LIMIT':([43,44,45,58,59,60,62,],[54,-15,57,-17,-24,-25,-16,]),'AND':([43,44,45,58,59,60,62,],[55,-15,55,-17,-24,-25,-16,]),'NUMBER':([46,47,48,49,50,51,52,54,57,],[60,-18,-19,-20,-21,-22,-23,61,63,]),}
+_lr_action_items = {'IMPORT':([0,],[2,]),'EXPORT':([0,],[3,]),'DISCARD':([0,],[4,]),'RENAME':([0,],[5,]),'PRINT':([0,],[6,]),'SELECT':([0,27,],[7,36,]),'CREATE':([0,],[8,]),'$end':([1,30,32,39,41,43,46,47,61,64,76,77,80,81,],[0,-3,-5,-4,-8,-9,-1,-2,-6,-7,-10,-11,-12,-13,]),'TABLE':([2,3,4,5,6,8,],[9,10,11,12,13,18,]),'STAR':([7,36,],[17,17,]),'IDENTIFIER':([7,9,10,11,12,13,18,22,24,25,26,36,40,42,52,53,63,74,75,],[15,19,20,21,22,23,27,31,33,34,35,15,48,48,66,67,48,48,48,]),'FROM':([14,15,16,17,19,35,44,45,],[24,-15,25,-14,28,-16,52,53,]),'COMMA':([15,16,35,45,],[-15,26,-16,26,]),'AS':([20,],[29,]),'SEMICOLON':([21,23,31,33,34,37,38,49,50,51,68,69,70,71,72,73,78,79,],[30,32,39,41,43,46,47,61,-17,64,-19,-26,-27,76,-18,77,80,81,]),'STRING':([28,29,54,55,56,57,58,59,60,],[37,38,69,-20,-21,-22,-23,-24,-25,]),'WHERE':([33,34,66,67,],[40,42,74,75,]),'EQUAL':([48,],[55,]),'NOTEQUAL':([48,],[56,]),'LESS':([48,],[57,]),'GREATER':([48,],[58,]),'LESS_EQUAL':([48,],[59,]),'GREATER_EQUAL':([48,],[60,]),'LIMIT':([49,50,51,68,69,70,72,],[62,-17,65,-19,-26,-27,-18,]),'AND':([49,50,51,68,69,70,72,78,79,],[63,-17,63,-19,-26,-27,-18,63,63,]),'NUMBER':([54,55,56,57,58,59,60,62,65,],[70,-20,-21,-22,-23,-24,-25,71,73,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'command':([0,],[1,]),'star_columns':([7,],[13,]),'column_list':([7,],[15,]),'condition_list':([36,38,],[43,45,]),'condition':([36,38,55,],[44,44,62,]),'comparison_operator':([42,],[46,]),'value':([46,],[58,]),}
+_lr_goto_items = {'command':([0,],[1,]),'star_columns':([7,36,],[14,44,]),'column_list':([7,36,],[16,45,]),'condition_list':([40,42,74,75,],[49,51,78,79,]),'condition':([40,42,63,74,75,],[50,50,72,50,50,]),'comparison_operator':([48,],[54,]),'value':([54,],[68,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -38,18 +38,20 @@ _lr_productions = [
   ('command -> SELECT column_list FROM IDENTIFIER SEMICOLON','command',5,'p_select_command','parser.py',46),
   ('command -> SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON','command',9,'p_select_command_limit','parser.py',70),
   ('command -> SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON','command',9,'p_select_command_limit','parser.py',71),
-  ('star_columns -> STAR','star_columns',1,'p_star_columns','parser.py',88),
-  ('column_list -> IDENTIFIER','column_list',1,'p_column_list','parser.py',94),
-  ('column_list -> column_list COMMA IDENTIFIER','column_list',3,'p_column_list','parser.py',95),
-  ('condition_list -> condition','condition_list',1,'p_condition_list','parser.py',105),
-  ('condition_list -> condition_list AND condition','condition_list',3,'p_condition_list','parser.py',106),
-  ('condition -> IDENTIFIER comparison_operator value','condition',3,'p_condition','parser.py',115),
-  ('comparison_operator -> EQUAL','comparison_operator',1,'p_comparison_operator','parser.py',121),
-  ('comparison_operator -> NOTEQUAL','comparison_operator',1,'p_comparison_operator','parser.py',122),
-  ('comparison_operator -> LESS','comparison_operator',1,'p_comparison_operator','parser.py',123),
-  ('comparison_operator -> GREATER','comparison_operator',1,'p_comparison_operator','parser.py',124),
-  ('comparison_operator -> LESS_EQUAL','comparison_operator',1,'p_comparison_operator','parser.py',125),
-  ('comparison_operator -> GREATER_EQUAL','comparison_operator',1,'p_comparison_operator','parser.py',126),
-  ('value -> STRING','value',1,'p_value','parser.py',132),
-  ('value -> NUMBER','value',1,'p_value','parser.py',133),
+  ('command -> CREATE TABLE IDENTIFIER SELECT star_columns FROM IDENTIFIER WHERE condition_list SEMICOLON','command',10,'p_create_table_command','parser.py',87),
+  ('command -> CREATE TABLE IDENTIFIER SELECT column_list FROM IDENTIFIER WHERE condition_list SEMICOLON','command',10,'p_create_table_command','parser.py',88),
+  ('star_columns -> STAR','star_columns',1,'p_star_columns','parser.py',106),
+  ('column_list -> IDENTIFIER','column_list',1,'p_column_list','parser.py',112),
+  ('column_list -> column_list COMMA IDENTIFIER','column_list',3,'p_column_list','parser.py',113),
+  ('condition_list -> condition','condition_list',1,'p_condition_list','parser.py',123),
+  ('condition_list -> condition_list AND condition','condition_list',3,'p_condition_list','parser.py',124),
+  ('condition -> IDENTIFIER comparison_operator value','condition',3,'p_condition','parser.py',133),
+  ('comparison_operator -> EQUAL','comparison_operator',1,'p_comparison_operator','parser.py',139),
+  ('comparison_operator -> NOTEQUAL','comparison_operator',1,'p_comparison_operator','parser.py',140),
+  ('comparison_operator -> LESS','comparison_operator',1,'p_comparison_operator','parser.py',141),
+  ('comparison_operator -> GREATER','comparison_operator',1,'p_comparison_operator','parser.py',142),
+  ('comparison_operator -> LESS_EQUAL','comparison_operator',1,'p_comparison_operator','parser.py',143),
+  ('comparison_operator -> GREATER_EQUAL','comparison_operator',1,'p_comparison_operator','parser.py',144),
+  ('value -> STRING','value',1,'p_value','parser.py',150),
+  ('value -> NUMBER','value',1,'p_value','parser.py',151),
 ]

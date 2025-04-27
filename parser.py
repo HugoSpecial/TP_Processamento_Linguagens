@@ -82,6 +82,24 @@ def p_select_command_limit(p):
         limit = p[8]
         p[0] = ('SELECT_ALL_WHERE_LIMIT', table_name, conditions, limit)
 
+def p_create_table_command(p):
+    '''
+    command : CREATE TABLE IDENTIFIER SELECT star_columns FROM IDENTIFIER WHERE condition_list SEMICOLON
+            | CREATE TABLE IDENTIFIER SELECT column_list FROM IDENTIFIER WHERE condition_list SEMICOLON
+    '''
+    if isinstance(p[5], list):  # SELECT column_list
+        table_name = p[3]         # nome da nova tabela
+        columns = p[5]            # lista de colunas
+        source_table = p[7]       # tabela de origem
+        conditions = p[9]         # condições WHERE
+        p[0] = ('CREATE_TABLE', table_name, source_table, columns, conditions)
+    else:  # SELECT star_columns
+        table_name = p[3]         # nome da nova tabela
+        source_table = p[7]       # tabela de origem
+        conditions = p[9]         # condições WHERE
+        p[0] = ('CREATE_TABLE', table_name, source_table, '*', conditions)
+
+
 # Colunas: '*' ou lista
 def p_star_columns(p):
     '''
