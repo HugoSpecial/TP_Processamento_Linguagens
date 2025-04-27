@@ -7,7 +7,7 @@ from database import database
 def run_cql_file(filename):
     try:
         with open(filename, 'r') as file:
-            print(f"\nExecutando arquivo: {filename}")
+            # print(f"\nExecutando arquivo: {filename}")
             line_number = 0  # Contador de linhas para imprimir no erro
 
             for line in file:
@@ -16,7 +16,7 @@ def run_cql_file(filename):
 
                 #! Aqui esta a verificacao dos comentarios na linha unica
                 # Ignorar linhas vazias ou comentários de linha única
-                if not line or line.startswith('--'):
+                if not line: #or line.startswith('--'):
                     continue
 
                 try:

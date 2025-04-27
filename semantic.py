@@ -43,7 +43,6 @@ def process_export(table_name, file_path):
     except Exception as e:
         raise Exception(f"Erro ao exportar tabela: {str(e)}")
 
-# Corrigido: recebe também os headers
 def evaluate_condition(row, headers, condition):
     column_name, operator, value = condition
     if column_name not in headers:
@@ -144,6 +143,19 @@ def execute_command(parsed):
             for row in table['dados']:
                 if all(evaluate_condition(row, headers, cond) for cond in conditions):
                     print(row)
+        else:
+            print(f"[ERRO] Tabela '{table_name}' não encontrada.")
+
+    elif cmd_type == 'SELECT_COLUMNS_WHERE' and len(parsed) >= 4:
+        table_name, columns, conditions = parsed[1], parsed[2], parsed[3]
+        table = database.get_table(table_name)
+        if table:
+            headers = table['variaveis']
+            print(f"Selecionando colunas '{', '.join(columns)}' da tabela '{table_name}' com condições:")
+            col_indexes = [headers.index(col) for col in columns]
+            for row in table['dados']:
+                if all(evaluate_condition(row, headers, cond) for cond in conditions):
+                    print([row[i] for i in col_indexes])
         else:
             print(f"[ERRO] Tabela '{table_name}' não encontrada.")
 
