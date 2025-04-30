@@ -67,7 +67,7 @@ def evaluate_condition(row, headers, condition):
 # Função para executar os comandos
 def execute_command(parsed):
     if not parsed or len(parsed) < 1:
-        # print("[ERRO] Comando inválido.")
+        print("[ERRO] Comando inválido.")
         return
 
     cmd_type = parsed[0]
@@ -189,4 +189,5 @@ def execute_command(parsed):
                     break
         else:
             print(f"[ERRO] Tabela '{table_name}' não encontrada.")
-    
+
+

@@ -2,109 +2,105 @@ from ply import yacc
 from lexer import tokens, lexer
 from database import database
 
-def p_command(p):
-    '''
-    command : sql_command SEMICOLON
-            | empty
-    '''
-    if len(p) == 3:  # sql_command SEMICOLON
-        p[0] = p[1]
-
-def p_empty(p):
-    '''
-    empty :
-    '''
-    p[0] = None  # Explicitly return None for empty productions
-
 # IMPORT
-def p_sql_command_import(p):
+def p_import_command(p):
     '''
-    sql_command : IMPORT TABLE IDENTIFIER FROM STRING
+    command : IMPORT TABLE IDENTIFIER FROM STRING SEMICOLON
     '''
     p[0] = ('IMPORT', p[3], p[5])
 
 # EXPORT
-def p_sql_command_export(p):
+def p_export_command(p):
     '''
-    sql_command : EXPORT TABLE IDENTIFIER AS STRING
+    command : EXPORT TABLE IDENTIFIER AS STRING SEMICOLON
     '''
     p[0] = ('EXPORT', p[3], p[5])
 
 # DISCARD
-def p_sql_command_discard(p):
+def p_discard_command(p):
     '''
-    sql_command : DISCARD TABLE IDENTIFIER
+    command : DISCARD TABLE IDENTIFIER SEMICOLON
     '''
     p[0] = ('DISCARD', p[3])
 
 # RENAME
-def p_sql_command_rename(p):
+def p_rename_command(p):
     '''
-    sql_command : RENAME TABLE IDENTIFIER IDENTIFIER
+    command : RENAME TABLE IDENTIFIER IDENTIFIER SEMICOLON
     '''
     p[0] = ('RENAME', p[3], p[4])
 
 # PRINT
-def p_sql_command_print(p):
+def p_print_command(p):
     '''
-    sql_command : PRINT TABLE IDENTIFIER
+    command : PRINT TABLE IDENTIFIER SEMICOLON
     '''
     p[0] = ('PRINT', p[3])
 
-# SELECT commands
-def p_sql_command_select(p):
+# SELECT
+def p_select_command(p):
     '''
-    sql_command : SELECT star_columns FROM IDENTIFIER
-                | SELECT column_list FROM IDENTIFIER
-                | SELECT star_columns FROM IDENTIFIER WHERE condition_list
-                | SELECT column_list FROM IDENTIFIER WHERE condition_list
-                | SELECT star_columns FROM IDENTIFIER LIMIT NUMBER
-                | SELECT column_list FROM IDENTIFIER LIMIT NUMBER
-                | SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER
-                | SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER
+    command : SELECT star_columns FROM IDENTIFIER WHERE condition_list SEMICOLON
+            | SELECT column_list FROM IDENTIFIER WHERE condition_list SEMICOLON
+            | SELECT star_columns FROM IDENTIFIER SEMICOLON
+            | SELECT column_list FROM IDENTIFIER SEMICOLON
     '''
-    if len(p) == 5:  # Basic SELECT without WHERE/LIMIT
-        if isinstance(p[2], list):
-            p[0] = ('SELECT_COLUMNS', p[4], p[2])
-        else:
-            p[0] = ('SELECT_ALL', p[4])
-    elif len(p) == 7:  # SELECT with WHERE or LIMIT
-        if p[5] == 'WHERE':
-            if isinstance(p[2], list):
-                p[0] = ('SELECT_COLUMNS_WHERE', p[4], p[2], p[6])
-            else:
-                p[0] = ('SELECT_ALL_WHERE', p[4], p[6])
-        else:  # LIMIT
-            if isinstance(p[2], list):
-                p[0] = ('SELECT_COLUMNS_LIMIT', p[4], p[2], p[6])
-            else:
-                p[0] = ('SELECT_ALL_LIMIT', p[4], p[6])
-    else:  # SELECT with WHERE and LIMIT (len == 9)
-        if isinstance(p[2], list):
-            p[0] = ('SELECT_COLUMNS_WHERE_LIMIT', p[4], p[2], p[6], p[8])
-        else:
-            p[0] = ('SELECT_ALL_WHERE_LIMIT', p[4], p[6], p[8])
+    if len(p) == 8:  # SELECT ... WHERE ...
+        if isinstance(p[2], list):  # column list
+            table_name = p[4]
+            columns = p[2]
+            conditions = p[6]
+            p[0] = ('SELECT_COLUMNS_WHERE', table_name, columns, conditions)
+        else:  # '*' (star)
+            table_name = p[4]
+            conditions = p[6]
+            p[0] = ('SELECT_ALL_WHERE', table_name, conditions)
+    elif len(p) == 6:  # SELECT ... ;
+        if isinstance(p[2], list):  # column list
+            table_name = p[4]
+            columns = p[2]
+            p[0] = ('SELECT_COLUMNS', table_name, columns)
+        else:  # '*' (star)
+            table_name = p[4]
+            p[0] = ('SELECT_ALL', table_name)
 
-# CREATE TABLE AS SELECT
-def p_sql_command_create(p):
+# LIMIT opcional
+def p_select_command_limit(p):
     '''
-    sql_command : CREATE TABLE IDENTIFIER SELECT star_columns FROM IDENTIFIER
-                | CREATE TABLE IDENTIFIER SELECT column_list FROM IDENTIFIER
-                | CREATE TABLE IDENTIFIER SELECT star_columns FROM IDENTIFIER WHERE condition_list
-                | CREATE TABLE IDENTIFIER SELECT column_list FROM IDENTIFIER WHERE condition_list
+    command : SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
+            | SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
     '''
-    if len(p) == 8:  # Without WHERE
-        if isinstance(p[5], list):
-            p[0] = ('CREATE_TABLE', p[3], p[7], p[5], None)
-        else:
-            p[0] = ('CREATE_TABLE', p[3], p[7], '*', None)
-    else:  # With WHERE (len == 10)
-        if isinstance(p[5], list):
-            p[0] = ('CREATE_TABLE', p[3], p[7], p[5], p[9])
-        else:
-            p[0] = ('CREATE_TABLE', p[3], p[7], '*', p[9])
+    if isinstance(p[2], list):  # column list
+        table_name = p[4]
+        columns = p[2]
+        conditions = p[6]
+        limit = p[8]
+        p[0] = ('SELECT_COLUMNS_WHERE_LIMIT', table_name, columns, conditions, limit)
+    else:  # '*' (star)
+        table_name = p[4]
+        conditions = p[6]
+        limit = p[8]
+        p[0] = ('SELECT_ALL_WHERE_LIMIT', table_name, conditions, limit)
 
-# Column definitions
+def p_create_table_command(p):
+    '''
+    command : CREATE TABLE IDENTIFIER SELECT star_columns FROM IDENTIFIER WHERE condition_list SEMICOLON
+            | CREATE TABLE IDENTIFIER SELECT column_list FROM IDENTIFIER WHERE condition_list SEMICOLON
+    '''
+    if isinstance(p[5], list):  # SELECT column_list
+        table_name = p[3]         # nome da nova tabela
+        columns = p[5]            # lista de colunas
+        source_table = p[7]       # tabela de origem
+        conditions = p[9]         # condições WHERE
+        p[0] = ('CREATE_TABLE', table_name, source_table, columns, conditions)
+    else:  # SELECT star_columns
+        table_name = p[3]         # nome da nova tabela
+        source_table = p[7]       # tabela de origem
+        conditions = p[9]         # condições WHERE
+        p[0] = ('CREATE_TABLE', table_name, source_table, '*', conditions)
+
+
+# Colunas: '*' ou lista
 def p_star_columns(p):
     '''
     star_columns : STAR
@@ -114,18 +110,18 @@ def p_star_columns(p):
 def p_column_list(p):
     '''
     column_list : IDENTIFIER
-               | column_list COMMA IDENTIFIER
+                | column_list COMMA IDENTIFIER
     '''
     if len(p) == 2:
         p[0] = [p[1]]
     else:
         p[0] = p[1] + [p[3]]
 
-# Condition handling
+# Condições
 def p_condition_list(p):
     '''
     condition_list : condition
-                  | condition_list AND condition
+                   | condition_list AND condition
     '''
     if len(p) == 2:
         p[0] = [p[1]]
@@ -156,18 +152,13 @@ def p_value(p):
     '''
     p[0] = p[1]
 
+# Erro
 def p_error(p):
-    if p:
-        print(f"Erro de sintaxe na entrada: '{p.value}' na linha {p.lineno}")
-    else:
-        print("Erro de sintaxe: fim inesperado do arquivo")
+    print(f"Erro de sintaxe na entrada: {p}")
 
-# Build the parser
+# Criação do parser
 parser = yacc.yacc()
 
+# Função de parse
 def parse_sql(sql):
-    try:
-        return parser.parse(sql, lexer=lexer)
-    except Exception as e:
-        print(f"Erro durante o parsing: {str(e)}")
-        return None
+    return parser.parse(sql)
