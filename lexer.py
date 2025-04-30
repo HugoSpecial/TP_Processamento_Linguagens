@@ -1,108 +1,119 @@
 from ply import lex
 
-class SQLLexer:
-    # Lista de tokens
-    tokens = (
-        'IMPORT', 'CREATE', 'EXPORT', 'DISCARD', 'RENAME', 'PRINT', 'AS',
-        'TABLE', 'FROM', 'SELECT', 'IDENTIFIER', 'STRING', 'SEMICOLON',
-        'STAR', 'COMMA', 'EQUAL', 'NOTEQUAL', 'LESS', 'GREATER',
-        'LESS_EQUAL', 'GREATER_EQUAL', 'LIMIT', 'WHERE', 'AND', 'NUMBER',
-    )
+# Definindo estados
+states = (
+    ('comment', 'exclusive'),
+)
 
-    # Palavras reservadas
-    reserved = {
-        'IMPORT': 'IMPORT',
-        'CREATE': 'CREATE',
-        'EXPORT': 'EXPORT',
-        'TABLE': 'TABLE',
-        'FROM': 'FROM',
-        'SELECT': 'SELECT',
-        'AS': 'AS',
-        'DISCARD': 'DISCARD',
-        'RENAME': 'RENAME',
-        'PRINT': 'PRINT',
-        'LIMIT': 'LIMIT',
-        'WHERE': 'WHERE',
-        'AND': 'AND'
-    }
+# Adicionando os tokens necessários
+tokens = (
+    'IMPORT',
+    'CREATE',
+    'EXPORT',
+    'DISCARD',
+    'RENAME',
+    'PRINT',
+    'AS',
+    'TABLE',
+    'FROM',
+    'SELECT',
+    'IDENTIFIER',
+    'STRING',
+    'SEMICOLON',
+    'STAR',
+    'COMMA',
+    'EQUAL',
+    'NOTEQUAL',
+    'LESS',
+    'GREATER',
+    'LESS_EQUAL',
+    'GREATER_EQUAL',
+    'LIMIT',
+    'WHERE',
+    'AND',
+    'NUMBER',
+)
 
-    # Tokens simples (literals com nomes)
-    t_SEMICOLON = r';'
-    t_COMMA = r',' 
-    t_STAR = r'\*'
-    t_EQUAL = r'='
-    t_NOTEQUAL = r'<>' 
-    t_LESS = r'<'
-    t_GREATER = r'>' 
-    t_LESS_EQUAL = r'<='
-    t_GREATER_EQUAL = r'>='
-    t_NUMBER = r'\d+(\.\d+)?'
+# Definindo palavras reservadas
+reserved = {
+    'IMPORT': 'IMPORT',
+    'CREATE':'CREATE',
+    'EXPORT': 'EXPORT',
+    'TABLE': 'TABLE',
+    'FROM': 'FROM',
+    'SELECT': 'SELECT',
+    'AS': 'AS',
+    'DISCARD': 'DISCARD',
+    'RENAME': 'RENAME',
+    'PRINT': 'PRINT',
+    'LIMIT': 'LIMIT',
+    'WHERE': 'WHERE',
+    'AND': 'AND'
+}
 
-    states = (
-        ('commentblock', 'exclusive'),
-    )
+# Expressões regulares simples
+t_SEMICOLON = r';'
+t_COMMA = r',' 
+t_STAR = r'\*'
+t_EQUAL = r'='
+t_NOTEQUAL = r'<>'
+t_LESS = r'<'
+t_GREATER = r'>'
+t_LESS_EQUAL = r'<='
+t_GREATER_EQUAL = r'>='
+t_ignore = ' \t'
+t_comment_ignore = ' \t'
 
-    # Initial state rules
-    t_ignore = ' \t'  # Ignore spaces and tabs, but not newlines
-    t_commentblock_ignore = ' \t'  # Ignore spaces and tabs in comments too
+t_NUMBER = r'\d+(\.\d+)?'
 
-    # Enter comment block state
-    def t_COMMENT_BLOCK_START(self, t):
-        r'\{--'
-        t.lexer.begin('commentblock')  # Enter comment state
-        t.lexer.comment_start = t.lexer.lineno  # Track starting line
+# Regra para SELECT (e outras palavras reservadas)
+def t_SELECT(t):
+    r'SELECT'
+    return t
 
-    # Comment block rules
-    def t_commentblock_COMMENT_BLOCK_END(self, t):
-        r'--\}'
-        t.lexer.lineno += t.value.count('\n')
-        t.lexer.begin('INITIAL')  # Return to initial state
-        return None  # Discard token
+def t_IDENTIFIER(t):
+    r'[a-zA-Z_][a-zA-Z0-9_]*'
+    t.type = reserved.get(t.value.upper(), 'IDENTIFIER')
+    return t
 
-    def t_commentblock_CONTENT(self, t):
-        r'(.|\n)+?(?=--\}|$)'
-        t.lexer.lineno += t.value.count('\n')
-        return None  # Discard content
+def t_STRING(t):
+    r'\"([^\\\n]|(\\.))*?\"'
+    t.value = t.value[1:-1]
+    return t
 
-    # Error handling in comment state
-    def t_commentblock_error(self, t):
-        print(f"Illegal character in comment: '{t.value[0]}'")
-        t.lexer.skip(1)
+# Comentário de linha
+def t_COMMENT_LINE(t):
+    r'--[^\n]*'
+    pass
 
-    # Line comments (unchanged)
-    @staticmethod
-    def t_COMMENT_LINE(t):
-        r'--[^\n]*'
-        pass
+# Início de comentário de bloco
+def t_COMMENT_BLOCK_START(t):
+    r'\{\-'
+    t.lexer.begin('comment')  # Muda para o estado de comentário
 
-    # --- Other rules AFTER comments ---
-    def t_IDENTIFIER(self, t):
-        r'[a-zA-Z_][a-zA-Z0-9_]*'
-        t.type = self.reserved.get(t.value.upper(), 'IDENTIFIER')
-        return t
+# Estado 'comment'
+def t_comment_COMMENT_BLOCK_END(t):
+    r'\-\}'
+    t.lexer.begin('INITIAL')  # Volta para o estado normal
 
-    def t_STRING(self, t):
-        r'\"([^\\\n]|(\\.))*?\"'
-        t.value = t.value[1:-1]  # Remove as aspas
-        return t
+def t_comment_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
 
-    def t_error(self, t):
-        # Skip only if it's a newline (common in many languages)
-        if t.value[0] == '\n':
-            t.lexer.lineno += 1
-            t.lexer.skip(1)
-        else:
-            print(f"Caracter ilegal '{t.value[0]}' na linha {t.lineno}")
-            t.lexer.skip(1)
+def t_comment_anything(t):
+    r'.|\n'
+    pass  # Ignora qualquer coisa dentro do comentário
 
-    def __init__(self):
-        self.lexer = None
+def t_comment_error(t):
+    t.lexer.skip(1)
 
-    def build(self, **kwargs):
-        self.lexer = lex.lex(module=self, **kwargs)
+def t_NEWLINE(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
 
-    def input(self, data):
-        self.lexer.input(data)
+def t_error(t):
+    print(f"Caracter ilegal '{t.value[0]}'")
+    t.lexer.skip(1)
 
-    def token(self):
-        return self.lexer.token()
+# Construir o lexer
+lexer = lex.lex()

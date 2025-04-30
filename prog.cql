@@ -1,5 +1,2 @@
-import table observacoes from "observacoes.csv";
--- select * from observacoes where DirecaoVento = "NE";
-    {--
-    Este é um comentário de bloco
-    --}
+import table estacoes from "estacoes.csv";
+select Local from estacoes;
