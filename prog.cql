@@ -1,2 +1,3 @@
 import table estacoes from "estacoes.csv";
-select Local from estacoes;
+print table estacoes;
+-- select * from estacoes limit 2;

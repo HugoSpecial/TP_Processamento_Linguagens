@@ -7,6 +7,7 @@
   discard table estacoes;
   export table estacoes as "est.csv";
 
+
   SELECT * FROM observacoes WHERE Temperatura > 22;
   SELECT Temperatura FROM observacoes WHERE Temperatura > 22;
   SELECT * FROM observacoes WHERE Temperatura < 20 AND Temperatura > 10;
@@ -20,9 +21,10 @@
   select Id, Local from estacoes;
   create table obs SELECT Temperatura FROM observacoes WHERE Temperatura < 22;
 
+  -- comentario
 
   COMANDOS QUE NAO FUNCIONAM
   SELECT * FROM observacoes LIMIT 3; nao sei se tem de funcionar este
 
   O QUE FALTA
-  Alinea C(Falta a parte do "USING"), D e E
+  Alinea C(Falta a parte do "USING" e o "JOIN"), D e E

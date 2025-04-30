@@ -1,74 +1,53 @@
 from ply import lex
 
-# Definindo estados
-states = (
-    ('comment', 'exclusive'),
-)
-
-# Adicionando os tokens necessários
 tokens = (
-    'IMPORT',
-    'CREATE',
-    'EXPORT',
-    'DISCARD',
-    'RENAME',
-    'PRINT',
-    'AS',
-    'TABLE',
-    'FROM',
-    'SELECT',
-    'IDENTIFIER',
-    'STRING',
-    'SEMICOLON',
-    'STAR',
-    'COMMA',
-    'EQUAL',
-    'NOTEQUAL',
-    'LESS',
-    'GREATER',
-    'LESS_EQUAL',
-    'GREATER_EQUAL',
-    'LIMIT',
-    'WHERE',
-    'AND',
-    'NUMBER',
+    'IMPORT', 'CREATE', 'EXPORT', 'DISCARD', 'RENAME', 'PRINT',
+    'AS', 'TABLE', 'FROM', 'SELECT', 'IDENTIFIER', 'STRING',
+    'SEMICOLON', 'STAR', 'COMMA', 'EQUAL', 'NOTEQUAL',
+    'LESS', 'GREATER', 'LESS_EQUAL', 'GREATER_EQUAL',
+    'LIMIT', 'WHERE', 'AND', 'NUMBER',
 )
 
-# Definindo palavras reservadas
 reserved = {
     'IMPORT': 'IMPORT',
-    'CREATE':'CREATE',
+    'CREATE': 'CREATE',
     'EXPORT': 'EXPORT',
-    'TABLE': 'TABLE',
-    'FROM': 'FROM',
-    'SELECT': 'SELECT',
-    'AS': 'AS',
     'DISCARD': 'DISCARD',
     'RENAME': 'RENAME',
     'PRINT': 'PRINT',
+    'AS': 'AS',
+    'TABLE': 'TABLE',
+    'FROM': 'FROM',
+    'SELECT': 'SELECT',
     'LIMIT': 'LIMIT',
     'WHERE': 'WHERE',
     'AND': 'AND'
 }
 
-# Expressões regulares simples
+t_ignore = ' \t'
+
+def t_COMMENT(t):
+    r'--[^\n]*'
+    pass  # Completely ignore comments
+
+def t_NEWLINE(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+
+# Simple tokens
 t_SEMICOLON = r';'
 t_COMMA = r',' 
 t_STAR = r'\*'
 t_EQUAL = r'='
 t_NOTEQUAL = r'<>'
-t_LESS = r'<'
-t_GREATER = r'>'
 t_LESS_EQUAL = r'<='
 t_GREATER_EQUAL = r'>='
-t_ignore = ' \t'
-t_comment_ignore = ' \t'
+t_LESS = r'<'
+t_GREATER = r'>'
 
-t_NUMBER = r'\d+(\.\d+)?'
-
-# Regra para SELECT (e outras palavras reservadas)
-def t_SELECT(t):
-    r'SELECT'
+def t_NUMBER(t):
+    r'\d+(\.\d+)?'
+    t.value = float(t.value) if '.' in t.value else int(t.value)
     return t
 
 def t_IDENTIFIER(t):
@@ -78,42 +57,11 @@ def t_IDENTIFIER(t):
 
 def t_STRING(t):
     r'\"([^\\\n]|(\\.))*?\"'
-    t.value = t.value[1:-1]
+    t.value = t.value[1:-1]  # Remove quotes
     return t
 
-# Comentário de linha
-def t_COMMENT_LINE(t):
-    r'--[^\n]*'
-    pass
-
-# Início de comentário de bloco
-def t_COMMENT_BLOCK_START(t):
-    r'\{\-'
-    t.lexer.begin('comment')  # Muda para o estado de comentário
-
-# Estado 'comment'
-def t_comment_COMMENT_BLOCK_END(t):
-    r'\-\}'
-    t.lexer.begin('INITIAL')  # Volta para o estado normal
-
-def t_comment_newline(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
-
-def t_comment_anything(t):
-    r'.|\n'
-    pass  # Ignora qualquer coisa dentro do comentário
-
-def t_comment_error(t):
-    t.lexer.skip(1)
-
-def t_NEWLINE(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
-
 def t_error(t):
-    print(f"Caracter ilegal '{t.value[0]}'")
+    print(f"Caracter ilegal '{t.value[0]}' na linha {t.lexer.lineno}")
     t.lexer.skip(1)
 
-# Construir o lexer
 lexer = lex.lex()
