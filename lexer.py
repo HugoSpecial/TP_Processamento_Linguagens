@@ -1,10 +1,5 @@
 from ply import lex
 
-# Definindo estados
-states = (
-    ('comment', 'exclusive'),
-)
-
 # Adicionando os tokens necessários
 tokens = (
     'IMPORT',
@@ -32,6 +27,7 @@ tokens = (
     'WHERE',
     'AND',
     'NUMBER',
+    # "SINGLE_COMMENT",
 )
 
 # Definindo palavras reservadas
@@ -62,7 +58,6 @@ t_GREATER = r'>'
 t_LESS_EQUAL = r'<='
 t_GREATER_EQUAL = r'>='
 t_ignore = ' \t'
-t_comment_ignore = ' \t'
 
 t_NUMBER = r'\d+(\.\d+)?'
 
@@ -81,31 +76,35 @@ def t_STRING(t):
     t.value = t.value[1:-1]
     return t
 
-# Comentário de linha
-def t_COMMENT_LINE(t):
-    r'--[^\n]*'
+def t_comment(t):
+    r'\-\-.*'
     pass
 
-# Início de comentário de bloco
-def t_COMMENT_BLOCK_START(t):
-    r'\{\-'
-    t.lexer.begin('comment')  # Muda para o estado de comentário
+# def t_MULTI_COMMENT(t):
+#     r'\{-[\s\S]*?-\}'
+#     pass
 
-# Estado 'comment'
-def t_comment_COMMENT_BLOCK_END(t):
-    r'\-\}'
-    t.lexer.begin('INITIAL')  # Volta para o estado normal
 
-def t_comment_newline(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
+# # Início de comentário de bloco
+# def t_COMMENT_BLOCK_START(t):
+#     r'\{\-'
+#     t.lexer.begin('comment')  # Muda para o estado de comentário
 
-def t_comment_anything(t):
-    r'.|\n'
-    pass  # Ignora qualquer coisa dentro do comentário
+# # Estado 'comment'
+# def t_comment_COMMENT_BLOCK_END(t):
+#     r'\-\}'
+#     t.lexer.begin('INITIAL')  # Volta para o estado normal
 
-def t_comment_error(t):
-    t.lexer.skip(1)
+# def t_comment_newline(t):
+#     r'\n+'
+#     t.lexer.lineno += len(t.value)
+
+# def t_comment_anything(t):
+#     r'.|\n'
+#     pass  # Ignora qualquer coisa dentro do comentário
+
+# def t_comment_error(t):
+#     t.lexer.skip(1)
 
 def t_NEWLINE(t):
     r'\n+'

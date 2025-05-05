@@ -66,6 +66,10 @@ def evaluate_condition(row, headers, condition):
 
 # Função para executar os comandos
 def execute_command(parsed):
+    if parsed is None:
+    # Linha vazia ou comentário ignorado
+        return
+
     if not parsed or len(parsed) < 1:
         print("[ERRO] Comando inválido.")
         return

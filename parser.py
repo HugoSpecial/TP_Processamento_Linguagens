@@ -152,6 +152,14 @@ def p_value(p):
     '''
     p[0] = p[1]
 
+def p_empty_command(p):
+    'command : empty'
+    p[0] = None
+
+def p_empty(p):
+    'empty :'
+    pass
+
 # Erro
 def p_error(p):
     print(f"Erro de sintaxe na entrada: {p}")

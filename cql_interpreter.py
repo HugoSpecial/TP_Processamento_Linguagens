@@ -39,6 +39,6 @@ def run_cql_file(filename):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Uso: python cql_interpreter.py arquivo.cql")
+        print("Uso: python cql_interpreter.py arquivo.fca")
     else:
         run_cql_file(sys.argv[1])
