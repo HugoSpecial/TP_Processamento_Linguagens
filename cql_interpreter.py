@@ -5,22 +5,24 @@ from semantic import execute_command
 from database import database
 
 def run_cql_file(filename):
+
     try:
         with open(filename, 'r') as file:
             # print(f"\nExecutando arquivo: {filename}")
             line_number = 0  # Contador de linhas para imprimir no erro
-
+            if not filename.endswith(".fca"):
+                print(f"Erro: O ficheiro {filename} tem de ter a extensao .fca")
+                sys.exit(1)
+                
             for line in file:
                 line_number += 1
                 line = line.strip()  # Remove espaços extras ao redor da linha
 
-                #! Aqui esta a verificacao dos comentarios na linha unica
                 # Ignorar linhas vazias ou comentários de linha única
-                if not line: #or line.startswith('--'):
+                if not line or line.startswith("#"):
                     continue
 
                 try:
-                    # Tenta parsear e executar o comando da linha
                     parsed = parse_sql(line)
                     execute_command(parsed)
                 except Exception as e:

@@ -27,7 +27,10 @@ tokens = (
     'WHERE',
     'AND',
     'NUMBER',
-    # "SINGLE_COMMENT",
+    'JOIN',
+    'USING',
+    'LPAREN',
+    'RPAREN',
 )
 
 # Definindo palavras reservadas
@@ -44,7 +47,9 @@ reserved = {
     'PRINT': 'PRINT',
     'LIMIT': 'LIMIT',
     'WHERE': 'WHERE',
-    'AND': 'AND'
+    'AND': 'AND',
+    'JOIN': 'JOIN',
+    'USING': 'USING'
 }
 
 # Expressões regulares simples
@@ -57,6 +62,8 @@ t_LESS = r'<'
 t_GREATER = r'>'
 t_LESS_EQUAL = r'<='
 t_GREATER_EQUAL = r'>='
+t_LPAREN = r'\('
+t_RPAREN = r'\)'
 t_ignore = ' \t'
 
 t_NUMBER = r'\d+(\.\d+)?'
@@ -80,31 +87,9 @@ def t_comment(t):
     r'\-\-.*'
     pass
 
-# def t_MULTI_COMMENT(t):
-#     r'\{-[\s\S]*?-\}'
-#     pass
-
-
-# # Início de comentário de bloco
-# def t_COMMENT_BLOCK_START(t):
-#     r'\{\-'
-#     t.lexer.begin('comment')  # Muda para o estado de comentário
-
-# # Estado 'comment'
-# def t_comment_COMMENT_BLOCK_END(t):
-#     r'\-\}'
-#     t.lexer.begin('INITIAL')  # Volta para o estado normal
-
-# def t_comment_newline(t):
-#     r'\n+'
-#     t.lexer.lineno += len(t.value)
-
-# def t_comment_anything(t):
-#     r'.|\n'
-#     pass  # Ignora qualquer coisa dentro do comentário
-
-# def t_comment_error(t):
-#     t.lexer.skip(1)
+def t_MULTI_COMMENT(t):
+    r'\{-[\s\S]*?-\}'  # Captura o conteúdo entre {--} e --}
+    pass  # Ignora o conteúdo do comentário
 
 def t_NEWLINE(t):
     r'\n+'

@@ -20,11 +20,12 @@
   select Local from estacoes;
   select Id, Local from estacoes;
   create table obs SELECT Temperatura FROM observacoes WHERE Temperatura < 22;
+  SELECT * FROM observacoes LIMIT 3;
+  CREATE TABLE completo FROM estacoes JOIN observacoes USING(Id);
 
   -- comentario
 
   COMANDOS QUE NAO FUNCIONAM
-  SELECT * FROM observacoes LIMIT 3; nao sei se tem de funcionar este
 
   O QUE FALTA
-  Alinea C(Falta a parte do "USING" e o "JOIN"), D e E
+  Alinea D e E(Falta o multi-line comment)
