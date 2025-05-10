@@ -68,11 +68,6 @@ t_ignore = ' \t'
 
 t_NUMBER = r'\d+(\.\d+)?'
 
-# Regra para SELECT (e outras palavras reservadas)
-def t_SELECT(t):
-    r'SELECT'
-    return t
-
 def t_IDENTIFIER(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
     t.type = reserved.get(t.value.upper(), 'IDENTIFIER')
