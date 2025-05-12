@@ -10,8 +10,8 @@ def run_cql_file(filename):
         with open(filename, 'r') as file:
             # print(f"\nExecutando arquivo: {filename}")
             line_number = 0  # Contador de linhas para imprimir no erro
-            if not filename.endswith(".fca"):
-                print(f"Erro: O ficheiro {filename} tem de ter a extensao .fca")
+            if not filename.endswith(".cql"):
+                print(f"Erro: O ficheiro {filename} tem de ter a extensao .cql")
                 sys.exit(1)
                 
             for line in file:
@@ -41,6 +41,6 @@ def run_cql_file(filename):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Uso: python cql_interpreter.py arquivo.fca")
+        print("Uso: python cql_interpreter.py arquivo.cql")
     else:
         run_cql_file(sys.argv[1])

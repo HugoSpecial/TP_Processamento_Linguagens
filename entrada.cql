@@ -1,5 +1,5 @@
-import table observacoes from "observacoes.csv";
-import table estacoes from "estacoes.csv";
+import table observacoes from "data/observacoes.csv";
+import table estacoes from "data/estacoes.csv";
 
 create table ola SELECT Temperatura FROM observacoes WHERE Temperatura >= 22;
 
