@@ -4,7 +4,7 @@ import table estacoes from "data/estacoes.csv";
 create table ola SELECT Temperatura FROM observacoes WHERE Temperatura >= 22;
 
 print table ola;
-export table ola as "ola.txt";
+-- export table ola as "ola.txt";
 -- print table observacoes;
 -- select * from estacoes limit 2;
 -- select Id from observacoes limit 3;

@@ -287,6 +287,4 @@ def execute_command(parsed):
 
         # Adicionar a nova tabela ao banco de dados
         database.add_table(new_table, new_headers, new_data)
-        print(f"Tabela '{new_table}' criada com sucesso com {len(new_data)} linha(s).")
-
-        
+        print(f"Tabela '{new_table}' criada com sucesso com {len(new_data)} linha(s).")  

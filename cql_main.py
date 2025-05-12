@@ -5,13 +5,11 @@ from semantic import execute_command
 from database import database
 
 def run_cql_file(filename):
-
     try:
         with open(filename, 'r') as file:
-            # print(f"\nExecutando arquivo: {filename}")
             line_number = 0  # Contador de linhas para imprimir no erro
             if not filename.endswith(".cql"):
-                print(f"Erro: O ficheiro {filename} tem de ter a extensao .cql")
+                print(f"Erro: O ficheiro {filename} tem de ter a extensão .cql")
                 sys.exit(1)
                 
             for line in file:
@@ -34,13 +32,30 @@ def run_cql_file(filename):
 
     except Exception as e:
         print(f"[ERRO] Falha ao processar o arquivo '{filename}': {str(e)}")
-    
-    # (Opcional) Imprimir o estado final do banco de dados, caso deseje
-    # print("\nEstado final da base de dados:")
-    # print(database)
+
+def run_interactive():
+    # Função para rodar interativamente
+    print("Escreva as expressões ou 'exit' para sair.")
+    while True:
+        try:
+            expr = input(">> ").strip()
+
+            if expr.lower() == 'sair':  # Permite sair do modo interativo
+                break
+                
+            parsed = parse_sql(expr)
+            result = execute_command(parsed)
+
+            if result is None:
+                print("<< Comando executado com sucesso!")
+            else:
+                print(f"<< {result}")
+
+        except Exception as e:
+            print(f"[ERRO] {e}")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Uso: python cql_interpreter.py arquivo.cql")
-    else:
+    if len(sys.argv) == 2:
         run_cql_file(sys.argv[1])
+    else:
+        run_interactive()
