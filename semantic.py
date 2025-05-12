@@ -1,19 +1,47 @@
 import csv
 from database import database
 
-# Função para processar a importação
+procedures = {}
+
+def define_procedure(name, commands):
+    procedures[name] = commands
+
+def call_procedure(name):
+
+    print(procedures)
+
+    if name not in procedures:
+        print(f"[ERRO] Procedimento '{name}' não foi definido.")
+        return
+    for cmd in procedures[name]:
+        execute_command(cmd)
+
 def process_import(table_name, file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             csv_reader = csv.reader(file)
             headers = next(csv_reader)
-            data = list(csv_reader)
 
+            # Ignora linhas com # no início
+            data = []
+            for row in csv_reader:
+                # Ignora linhas com # no início
+                if row[0].startswith('#'):
+                    continue
+
+                # Verifica se a linha tem o número de colunas correto
+                if len(row) != len(headers):
+                    continue  # Ignora linhas com número de colunas inconsistente
+
+                data.append(row)
+
+            # Verifica se há dados válidos para adicionar
             if not headers:
                 raise ValueError("Arquivo sem cabeçalhos")
-            if data and any(len(headers) != len(row) for row in data):
-                raise ValueError("Número de colunas inconsistente")
+            if not data:
+                raise ValueError("Não há dados válidos para importar")
 
+            # Adiciona a tabela ao banco de dados
             database.add_table(table_name, headers, data)
             return True
 
@@ -21,6 +49,8 @@ def process_import(table_name, file_path):
         raise Exception(f"Arquivo não encontrado: {file_path}")
     except Exception as e:
         raise Exception(f"Erro semântico: {str(e)}")
+
+
 
 # Função para processar a exportação
 def process_export(table_name, file_path):
@@ -64,17 +94,29 @@ def evaluate_condition(row, headers, condition):
         return column_value >= value
     return False
 
+def interpret(code):
+    parsed = parser.parse(code)
+    if not parsed:
+        return None
+
+    # Execute each command
+    for command in parsed:
+        result = execute_command(command)
+        if result:
+            return result
+
 # Função para executar os comandos
 def execute_command(parsed):
     if parsed is None:
     # Linha vazia ou comentário ignorado
-        return
+        return "Parse inválido ou comando vazio."
 
     if not parsed or len(parsed) < 1:
         print("[ERRO] Comando inválido.")
-        return
+        return "Parse inválido ou comando vazio."
 
     cmd_type = parsed[0]
+    # print(f"Executando comando: {cmd_type}")
 
     if cmd_type == 'IMPORT' and len(parsed) >= 3:
         _, table_name, file_path = parsed
@@ -288,3 +330,12 @@ def execute_command(parsed):
         # Adicionar a nova tabela ao banco de dados
         database.add_table(new_table, new_headers, new_data)
         print(f"Tabela '{new_table}' criada com sucesso com {len(new_data)} linha(s).")  
+    
+    elif cmd_type == 'DEFINE_PROCEDURE' and len(parsed) >= 3:
+        proc_name = parsed[1]
+        commands = parsed[2]
+        define_procedure(proc_name, commands)
+
+    elif cmd_type == 'CALL_PROCEDURE' and len(parsed) >= 2:
+        proc_name = parsed[1]
+        call_procedure(proc_name)

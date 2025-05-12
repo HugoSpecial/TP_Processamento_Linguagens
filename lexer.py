@@ -31,6 +31,10 @@ tokens = (
     'USING',
     'LPAREN',
     'RPAREN',
+    "PROCEDURE",
+    "DO",
+    "END",
+    "CALL",
 )
 
 # Definindo palavras reservadas
@@ -49,7 +53,11 @@ reserved = {
     'WHERE': 'WHERE',
     'AND': 'AND',
     'JOIN': 'JOIN',
-    'USING': 'USING'
+    'USING': 'USING',
+    "PROCEDURE": "PROCEDURE",
+    "DO": "DO",
+    "END": "END",
+    "CALL": "CALL",
 }
 
 # Expressões regulares simples
@@ -93,6 +101,10 @@ def t_NEWLINE(t):
 def t_error(t):
     print(f"Caracter ilegal '{t.value[0]}'")
     t.lexer.skip(1)
+
+def build():
+    lexer = lex.lex()
+    return lexer
 
 # Construir o lexer
 lexer = lex.lex()
