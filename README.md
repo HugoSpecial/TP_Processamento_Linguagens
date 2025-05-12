@@ -87,13 +87,13 @@ pip install ply
 ### Modo de Execução
 
 ```bash
-python interpreter.py arquivo.cql
+python cql_main.py ficheiro.cql
 ```
 
 ### Modo Interativo
 
 ```bash
-python interpreter.py
+python cql_main.py
 >> [escreva aqui os comandos]
 ```
 
