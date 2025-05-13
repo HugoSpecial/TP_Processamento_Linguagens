@@ -8,8 +8,6 @@ def define_procedure(name, commands):
 
 def call_procedure(name):
 
-    print(procedures)
-
     if name not in procedures:
         print(f"[ERRO] Procedimento '{name}' não foi definido.")
         return
@@ -41,7 +39,7 @@ def process_import(table_name, file_path):
             if not data:
                 raise ValueError("Não há dados válidos para importar")
 
-            # Adiciona a tabela ao banco de dados
+            # Adiciona a tabela ao base de dados
             database.add_table(table_name, headers, data)
             return True
 
@@ -116,7 +114,6 @@ def execute_command(parsed):
         return "Parse inválido ou comando vazio."
 
     cmd_type = parsed[0]
-    # print(f"Executando comando: {cmd_type}")
 
     if cmd_type == 'IMPORT' and len(parsed) >= 3:
         _, table_name, file_path = parsed
@@ -172,7 +169,6 @@ def execute_command(parsed):
         table_name = parsed[1]
         table = database.get_table(table_name)
         if table:
-            print(f"Imprimindo os dados da tabela '{table_name}':")
             for row in table['dados']:
                 print(row)
         else:
@@ -195,7 +191,6 @@ def execute_command(parsed):
         table = database.get_table(table_name)
         if table:
             headers = table['variaveis']
-            print(f"Selecionando colunas '{', '.join(columns)}' da tabela '{table_name}' com condições:")
             col_indexes = [headers.index(col) for col in columns]
             for row in table['dados']:
                 if all(evaluate_condition(row, headers, cond) for cond in conditions):
@@ -204,11 +199,10 @@ def execute_command(parsed):
             print(f"[ERRO] Tabela '{table_name}' não encontrada.")
 
     elif cmd_type == 'SELECT_ALL_WHERE_LIMIT' and len(parsed) >= 4:
-        table_name, conditions, limit = parsed[1], parsed[2], parsed[3]
+        table_name, conditions, limit = parsed[1], parsed[2], int(parsed[3])
         table = database.get_table(table_name)
         if table:
             headers = table['variaveis']
-            print(f"Selecionando dados da tabela '{table_name}' com condições e limite {limit}:")
             count = 0
             for row in table['dados']:
                 if all(evaluate_condition(row, headers, cond) for cond in conditions):
@@ -220,11 +214,10 @@ def execute_command(parsed):
             print(f"[ERRO] Tabela '{table_name}' não encontrada.")
 
     elif cmd_type == 'SELECT_COLUMNS_WHERE_LIMIT' and len(parsed) >= 5:
-        table_name, columns, conditions, limit = parsed[1], parsed[2], parsed[3], parsed[4]
+        table_name, columns, conditions, limit = parsed[1], parsed[2], parsed[3], int(parsed[4])
         table = database.get_table(table_name)
         if table:
             headers = table['variaveis']
-            print(f"Selecionando colunas '{', '.join(columns)}' da tabela '{table_name}' com condições e limite {limit}:")
             col_indexes = [headers.index(col) for col in columns]
             count = 0
             for row in table['dados']:
@@ -264,26 +257,24 @@ def execute_command(parsed):
             if all(evaluate_condition(row, headers, cond) for cond in conditions):
                 new_data.append([row[i] for i in selected_indexes])
 
-        # Cria nova tabela no banco
+        # Cria nova tabela na base de dados
         database.add_table(new_table_name, selected_headers, new_data)
         print(f"Tabela '{new_table_name}' criada com sucesso com {len(new_data)} linha(s).")
 
     elif cmd_type == 'SELECT_ALL_LIMIT' and len(parsed) >= 3:
-        table_name, limit = parsed[1], parsed[2]
+        table_name, limit = parsed[1], int(parsed[2])
         table = database.get_table(table_name)
         if table:
-            print(f"Selecionando os primeiros {limit} dados da tabela '{table_name}':")
             for row in table['dados'][:limit]:
                 print(row)
         else:
             print(f"[ERRO] Tabela '{table_name}' não encontrada.")
 
     elif cmd_type == 'SELECT_COLUMNS_LIMIT' and len(parsed) >= 4:
-        table_name, columns, limit = parsed[1], parsed[2], parsed[3]
+        table_name, columns, limit = parsed[1], parsed[2], int(parsed[3])
         table = database.get_table(table_name)
         if table:
             headers = table['variaveis']
-            print(f"Selecionando colunas '{', '.join(columns)}' da tabela '{table_name}' com limite {limit}:")
             col_indexes = [headers.index(col) for col in columns]
             for row in table['dados'][:limit]:
                 print([row[i] for i in col_indexes])
@@ -296,7 +287,7 @@ def execute_command(parsed):
         table2 = parsed[3]
         join_key = parsed[4]
 
-        # Obter as tabelas do banco de dados
+        # Obter as tabelas da base de dados
         t1 = database.get_table(table1)
         t2 = database.get_table(table2)
 
@@ -327,7 +318,7 @@ def execute_command(parsed):
                     new_row = row1 + [row2[i] for i in range(len(row2)) if i != t2_key_index]
                     new_data.append(new_row)
 
-        # Adicionar a nova tabela ao banco de dados
+        # Adicionar a nova tabela a base de dados
         database.add_table(new_table, new_headers, new_data)
         print(f"Tabela '{new_table}' criada com sucesso com {len(new_data)} linha(s).")  
     

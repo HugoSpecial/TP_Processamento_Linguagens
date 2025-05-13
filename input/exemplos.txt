@@ -1,4 +1,3 @@
-  COMANDOS QUE FUNCIONAM
   import table estacoes from "estacoes.csv";
   print table estacoes;
   RENAME TABLE estacoes est;
@@ -22,8 +21,7 @@
   CREATE TABLE completo FROM estacoes JOIN observacoes USING(Id);
 
   -- comentario
-
-  COMANDOS QUE NAO FUNCIONAM
-
-  O QUE FALTA
-  Alinea D e E(Falta o multi-line comment)
+  {-
+    Isto e um comentario multi
+    linha
+  -}

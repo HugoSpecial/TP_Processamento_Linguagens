@@ -34,16 +34,18 @@ def run_cql_file(filename):
                     # Para capturar o conteúdo entre {- e -}
                     if line.startswith("{-"):
                         inside_block = True
-                        captured_content = line[2:]  # Remove "{-" do início
+                        captured_content = line[2:]
 
                     elif line.endswith("-}") and inside_block:
                         inside_block = False
-                        captured_content += " " + line[:-2]  # Remove "-}" do final
+                        captured_content += " " + line[:-2]
                         
                         final_content = " ".join(captured_content.split())
+
                         parsed = parse_sql("{-" + final_content + "-}")
                         result = execute_command(parsed)
-                        captured_content = ""  # Reseta para o próximo bloco
+
+                        captured_content = ""
 
                     elif line.upper().startswith("PROCEDURE"):
                         # Inicia a captura do PROCEDURE
@@ -55,26 +57,22 @@ def run_cql_file(filename):
                             procedure_content = line
 
                     elif line.upper().startswith("END") and inside_procedure:
-                        # Finaliza o PROCEDURE
                         inside_procedure = False
-                        # Adiciona a linha final (END PROCEDURE) e remove quebras de linha
                         procedure_content += " " + line.strip()
                         
-                        # Remove espaços extras e quebras de linha
                         single_line_procedure = " ".join(procedure_content.split())                        
 
                         parsed = parse_sql(single_line_procedure)
                         result = execute_command(parsed)
 
-                        # Limpa o conteúdo da procedure para o próximo
                         procedure_content = ""
 
                     elif inside_procedure:
-                        # Durante a captura do PROCEDURE, adiciona o conteúdo à linha atual
+
                         procedure_content += " " + line.strip()
 
                     elif inside_block:
-                        captured_content += " " + line  # Adiciona como continuação de outros blocos
+                        captured_content += " " + line
                     # Fim do bloco
                     else:
                         parsed = parse_sql(line)

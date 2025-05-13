@@ -11,7 +11,7 @@ examples = [
     'IMPORT TABLE estacoes FROM "data/estacoes.csv";',
     'IMPORT TABLE observacoes FROM "data/observacoes.csv";',
     "SELECT * FROM estacoes;",
-    "SELECT Id,Local FROM estacoes;",
+    "SELECT Id,Local FROM estacoes limit 2;",
 ]
 
 for example in examples:
