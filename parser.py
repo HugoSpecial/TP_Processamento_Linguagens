@@ -7,214 +7,183 @@ from database import database
 GENERATE_AST = False
 
 # === Comandos ===
-# IMPORT
 def p_import_command(p):
-    """ command : IMPORT TABLE IDENTIFIER FROM STRING SEMICOLON""" 
+    """ command : IMPORT TABLE IDENTIFIER FROM STRING SEMICOLON"""
     if GENERATE_AST:
-        p[0] = ('IMPORT', {'table': p[3], 'file': p[5]})
+        p[0] = {'op': 'IMPORT', 'args': [p[3], p[5]]}
     else:
         p[0] = ('IMPORT', p[3], p[5])
 
-# EXPORT
 def p_export_command(p):
-    """ command : EXPORT TABLE IDENTIFIER AS STRING SEMICOLON""" 
+    """ command : EXPORT TABLE IDENTIFIER AS STRING SEMICOLON"""
     if GENERATE_AST:
-        p[0] = ('EXPORT', {'table': p[3], 'file': p[5]})
+        p[0] = {'op': 'EXPORT', 'args': [p[3], p[5]]}
     else:
         p[0] = ('EXPORT', p[3], p[5])
 
-# DISCARD
 def p_discard_command(p):
     """ command : DISCARD TABLE IDENTIFIER SEMICOLON"""
     if GENERATE_AST:
-        p[0] = ('DISCARD', {'type': 'DISCARD', 'table': p[3]})
+        p[0] = {'op': 'DISCARD', 'args': [p[3]]}
     else:
         p[0] = ('DISCARD', p[3])
 
-# RENAME
 def p_rename_command(p):
     """ command : RENAME TABLE IDENTIFIER IDENTIFIER SEMICOLON"""
     if GENERATE_AST:
-        p[0] = ('RENAME', {'type': 'RENAME', 'old_name': p[3], 'new_name': p[4]})
+        p[0] = {'op': 'RENAME', 'args': [p[3], p[4]]}
     else:
         p[0] = ('RENAME', p[3], p[4])
 
-# PRINT
 def p_print_command(p):
     """ command : PRINT TABLE IDENTIFIER SEMICOLON"""
     if GENERATE_AST:
-        p[0] = ('PRINT', {'type': 'PRINT', 'table': p[3]})
+        p[0] = {'op': 'PRINT', 'args': [p[3]]}
     else:
         p[0] = ('PRINT', p[3])
 
-# SELECT
-
 def p_select_command(p):
-    """ 
+    """
     command : SELECT star_columns FROM IDENTIFIER WHERE condition_list SEMICOLON
             | SELECT column_list FROM IDENTIFIER WHERE condition_list SEMICOLON
             | SELECT star_columns FROM IDENTIFIER SEMICOLON
             | SELECT column_list FROM IDENTIFIER SEMICOLON
-    """ 
-    if len(p) == 8:
-        if isinstance(p[2], list):
-            if GENERATE_AST:
-                p[0] = ('SELECT', {'columns': p[2], 'from': p[4], 'where': p[6]})
-            else:
-                p[0] = ('SELECT_COLUMNS_WHERE', p[4], p[2], p[6])
+    """
+    if GENERATE_AST:
+        if len(p) == 8:
+            columns = p[2] if isinstance(p[2], list) else '*'
+            p[0] = {'op': 'SELECT', 'args': [columns, p[4], p[6]]}
         else:
-            if GENERATE_AST:
-                p[0] = ('SELECT', {'columns': '*', 'from': p[4], 'where': p[6]})
+            columns = p[2] if isinstance(p[2], list) else '*'
+            p[0] = {'op': 'SELECT', 'args': [columns, p[4]]}
+    else:
+        if len(p) == 8:
+            if isinstance(p[2], list):
+                p[0] = ('SELECT_COLUMNS_WHERE', p[4], p[2], p[6])
             else:
                 p[0] = ('SELECT_ALL_WHERE', p[4], p[6])
-    elif len(p) == 6:
-        if isinstance(p[2], list):
-            if GENERATE_AST:
-                p[0] = ('SELECT', {'columns': p[2], 'from': p[4]})
-            else:
-                p[0] = ('SELECT_COLUMNS', p[4], p[2])
         else:
-            if GENERATE_AST:
-                p[0] = ('SELECT', {'columns': '*', 'from': p[4]})
+            if isinstance(p[2], list):
+                p[0] = ('SELECT_COLUMNS', p[4], p[2])
             else:
                 p[0] = ('SELECT_ALL', p[4])
 
-# SELECT ... WHERE ... LIMIT ...
 def p_select_command_limit(p):
-    """ 
+    """
     command : SELECT star_columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
             | SELECT column_list FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON
-    """ 
-    if isinstance(p[2], list):
-        if GENERATE_AST:
-            p[0] = ('SELECT', {'columns': p[2], 'from': p[4], 'where': p[6], 'limit': p[8]})
-        else:
-            p[0] = ('SELECT_COLUMNS_WHERE_LIMIT', p[4], p[2], p[6], p[8])
+    """
+    if GENERATE_AST:
+        columns = p[2] if isinstance(p[2], list) else '*'
+        p[0] = {'op': 'SELECT', 'args': [columns, p[4], p[6], p[8]]}
     else:
-        if GENERATE_AST:
-            p[0] = ('SELECT', {'columns': '*', 'from': p[4], 'where': p[6], 'limit': p[8]})
+        if isinstance(p[2], list):
+            p[0] = ('SELECT_COLUMNS_WHERE_LIMIT', p[4], p[2], p[6], p[8])
         else:
             p[0] = ('SELECT_ALL_WHERE_LIMIT', p[4], p[6], p[8])
 
-# SELECT ... LIMIT ...
 def p_select_simple_limit(p):
-    """ 
+    """
     command : SELECT star_columns FROM IDENTIFIER LIMIT NUMBER SEMICOLON
             | SELECT column_list FROM IDENTIFIER LIMIT NUMBER SEMICOLON
-    """ 
-    if isinstance(p[2], list):
-        if GENERATE_AST:
-            p[0] = ('SELECT', {'columns': p[2], 'from': p[4], 'limit': p[6]})
-        else:
-            p[0] = ('SELECT_COLUMNS_LIMIT', p[4], p[2], p[6])
+    """
+    if GENERATE_AST:
+        columns = p[2] if isinstance(p[2], list) else '*'
+        p[0] = {'op': 'SELECT', 'args': [columns, p[4], p[6]]}
     else:
-        if GENERATE_AST:
-            p[0] = ('SELECT', {'columns': '*', 'from': p[4], 'limit': p[6]})
+        if isinstance(p[2], list):
+            p[0] = ('SELECT_COLUMNS_LIMIT', p[4], p[2], p[6])
         else:
             p[0] = ('SELECT_ALL_LIMIT', p[4], p[6])
 
-# CREATE TABLE ... SELECT ...
 def p_create_table_command(p):
-    """ 
+    """
     command : CREATE TABLE IDENTIFIER SELECT star_columns FROM IDENTIFIER WHERE condition_list SEMICOLON
             | CREATE TABLE IDENTIFIER SELECT column_list FROM IDENTIFIER WHERE condition_list SEMICOLON
-    """ 
+    """
     columns = p[5] if isinstance(p[5], list) else '*'
     if GENERATE_AST:
-        p[0] = ('CREATE_TABLE', {
-            'name': p[3],
-            'select': {
-                'columns': columns,
-                'from': p[7],
-                'where': p[9]
-            }
-        })
+        p[0] = {
+            'op': 'CREATE_TABLE',
+            'args': [p[3], {'op': 'SELECT', 'args': [columns, p[7], p[9]]}]
+        }
     else:
         p[0] = ('CREATE_TABLE', p[3], p[7], columns, p[9])
 
 def p_create_table_join_using(p):
-    """ command : CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN SEMICOLON""" 
+    """ command : CREATE TABLE IDENTIFIER FROM IDENTIFIER JOIN IDENTIFIER USING LPAREN IDENTIFIER RPAREN SEMICOLON"""
     if GENERATE_AST:
-        p[0] = ('CREATE_TABLE_JOIN', {
-            'name': p[3],
-            'left': p[5],
-            'right': p[7],
-            'on': p[10]
-        })
+        p[0] = {
+            'op': 'CREATE_TABLE_JOIN',
+            'args': [p[3], p[5], p[7], p[10]]
+        }
     else:
         p[0] = ('CREATE_TABLE_JOIN', p[3], p[5], p[7], p[10])
 
-# Define um procedimento
 def p_procedure_command(p):
     """command : PROCEDURE IDENTIFIER DO procedure_body END"""
     if GENERATE_AST:
-        p[0] = {
-                    "type": "DEFINE_PROCEDURE",
-                    "name": p[2],                  
-                    "body": p[4]                   
-                }
+        p[0] = {'op': 'DEFINE_PROCEDURE', 'args': [p[2], p[4]]}
     else:
         p[0] = ("DEFINE_PROCEDURE", p[2], p[4])
 
-# Chamada de um procedimento
 def p_call_command(p):
-    """ command : CALL IDENTIFIER SEMICOLON""" 
-    p[0] = ("CALL_PROCEDURE", p[2])
+    """ command : CALL IDENTIFIER SEMICOLON"""
+    if GENERATE_AST:
+        p[0] = {'op': 'CALL_PROCEDURE', 'args': [p[2]]}
+    else:
+        p[0] = ("CALL_PROCEDURE", p[2])
 
 # === Auxiliares ===
 def p_star_columns(p):
-    """ star_columns : STAR""" 
+    """ star_columns : STAR"""
     p[0] = '*'
 
 def p_column_list(p):
-    """ 
+    """
     column_list : IDENTIFIER
                 | column_list COMMA IDENTIFIER
-    """ 
+    """
     p[0] = [p[1]] if len(p) == 2 else p[1] + [p[3]]
 
 def p_condition_list(p):
-    """ 
+    """
     condition_list : condition
                    | condition_list AND condition
-    """ 
+    """
     p[0] = [p[1]] if len(p) == 2 else p[1] + [p[3]]
 
 def p_condition(p):
-    """ condition : IDENTIFIER comparison_operator value""" 
+    """ condition : IDENTIFIER comparison_operator value"""
     p[0] = (p[1], p[2], p[3])
 
 def p_comparison_operator(p):
-    """ 
+    """
     comparison_operator : EQUAL
                         | NOTEQUAL
                         | LESS
                         | GREATER
                         | LESS_EQUAL
                         | GREATER_EQUAL
-    """ 
+    """
     p[0] = p[1]
 
-# Corpo do procedimento
 def p_procedure_body(p):
-    """ 
+    """
     procedure_body : command
                    | procedure_body command
-    """ 
-    if len(p) == 2:
-        p[0] = [p[1]]
-    else:
-        p[0] = p[1] + [p[2]]
+    """
+    p[0] = [p[1]] if len(p) == 2 else p[1] + [p[2]]
 
 def p_value(p):
-    """ 
+    """
     value : STRING
           | NUMBER
-    """ 
+    """
     p[0] = p[1]
 
 def p_empty_command(p):
-    """ command : empty""" 
+    """ command : empty"""
     p[0] = None
 
 def p_empty(p):
