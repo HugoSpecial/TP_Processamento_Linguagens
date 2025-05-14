@@ -1,126 +1,137 @@
-# Interpretador CQL (Custom Query Language)
+  # Trabalho Prático - Processamento de Linguagens
 
-## Descrição
+  ## Grupo Nº 09
 
-Este projeto implementa um interpretador para uma linguagem de consulta personalizada (CQL) que permite:
+  | Número | Nome             |
+  |--------|------------------|
+  | 27963  | Hugo Especial    |
+  | 27966  | Paulo Gonçalves  |
+  | 27969  | Marco Cardoso    |
 
-- Importar/exportar dados de tabelas em formato CSV  
-- Executar operações básicas de base de dados  
-- Definir e executar procedimentos armazenados  
-- Analisar a estrutura sintática dos comandos  
+  ## Descrição
 
----
+  Este projeto implementa um interpretador para uma linguagem de consulta personalizada (CQL) que permite:
 
-## Funcionalidades Principais
+  - Importar/exportar dados de tabelas em formato CSV  
+  - Executar operações básicas de base de dados  
+  - Definir e executar procedimentos armazenados  
+  - Analisar a estrutura sintática dos comandos  
 
-### Comandos de Tabela
+  ---
 
-- `IMPORT TABLE [nome] FROM "[arquivo.csv]";`  
-  Importa dados de um arquivo CSV
+  ## Funcionalidades Principais
 
-- `EXPORT TABLE [nome] AS "[arquivo.csv]";`  
-  Exporta tabela para CSV
+  ### Comandos de Tabela
 
-- `PRINT TABLE [nome];`  
-  Exibe o conteúdo de uma tabela
+  - `IMPORT TABLE [nome] FROM "[arquivo.csv]";`  
+    Importa dados de um arquivo CSV
 
-- `DISCARD TABLE [nome];`  
-  Remove todos os dados de uma tabela
+  - `EXPORT TABLE [nome] AS "[arquivo.csv]";`  
+    Exporta tabela para CSV
 
-- `RENAME TABLE [nome antigo] [nome novo];`  
-  Renomeia uma tabela
+  - `PRINT TABLE [nome];`  
+    Exibe o conteúdo de uma tabela
 
-### Comandos de Consulta
+  - `DISCARD TABLE [nome];`  
+    Remove todos os dados de uma tabela
 
-- `SELECT * FROM [tabela];`  
-  Seleciona todos os dados
+  - `RENAME TABLE [nome antigo] [nome novo];`  
+    Renomeia uma tabela
 
-- `SELECT [col1, col2] FROM [tabela];`  
-  Seleciona colunas específicas
+  ### Comandos de Consulta
 
-- `SELECT ... WHERE [condição];`  
-  Filtra resultados
+  - `SELECT * FROM [tabela];`  
+    Seleciona todos os dados
 
-- `SELECT ... LIMIT [n];`  
-  Limita número de resultados
+  - `SELECT [col1, col2] FROM [tabela];`  
+    Seleciona colunas específicas
 
-### Criação de Tabelas
+  - `SELECT ... WHERE [condição];`  
+    Filtra resultados
 
-- `CREATE TABLE [nome] SELECT ...;`  
-  Cria tabela a partir de consulta
+  - `SELECT ... LIMIT [n];`  
+    Limita número de resultados
 
-- `CREATE TABLE [nome] FROM [tabela1] JOIN [tabela2] USING [coluna];`  
-  Cria tabela via JOIN
+  ### Criação de Tabelas
 
-### Procedures
+  - `CREATE TABLE [nome] SELECT ...;`  
+    Cria tabela a partir de consulta
 
-- `PROCEDURE [nome] [comandos]; END PROCEDURE;`  
-  Define procedimento armazenado
+  - `CREATE TABLE [nome] FROM [tabela1] JOIN [tabela2] USING [coluna];`  
+    Cria tabela via JOIN
 
-- `CALL [nome];`  
-  Executa procedimento
+  ### Procedures
 
-### Análise Sintática
+  - `PROCEDURE [nome] [comandos]; END PROCEDURE;`  
+    Define procedimento armazenado
 
-- Use o prefixo `AST:` com qualquer comando para ver sua árvore sintática
+  - `CALL [nome];`  
+    Executa procedimento
 
----
 
-## Instalação
+  ## Instalação
 
-Clone o repositório:
+  Clone o repositório:
 
-```bash
-git clone https://github.com/HugoSpecial/TP_Processamento_Linguagens.git
-```
+  ```bash
+  git clone https://github.com/HugoSpecial/TP_Processamento_Linguagens.git
+  ```
 
-Instale as dependências:
+  Instale as dependências:
 
-```bash
-pip install ply
-```
+  ```bash
+  pip install ply
+  ```
 
----
+  ---
 
-## Uso
+  ## Uso
 
-### Modo de Execução
+  ### Modo de Execução
 
-```bash
-python cql_main.py ficheiro.cql
-```
+  ```bash
+  python cql_main.py ficheiro.cql
+  ```
 
-### Modo Interativo
+  ### Modo de Execução com mostragem de Árvore de Sintaxe Abstrata
 
-```bash
-python cql_main.py
->> [escreva aqui os comandos]
-```
+  ```bash
+  python cql_main.py ficheiro.cql ast
+  ```
 
----
+  ### Modo Interativo
 
-## Exemplos
+  ```bash
+  python cql_main.py
+  >> import table obs from "data/observacoes.csv";
+  Tabela 'obs' importada com sucesso!
+  << AST: {'op': 'IMPORT', 'args': ['obs', 'data/observacoes.csv']}
+  ```
 
-### Exemplo 1: Importação e Consulta
+  ---
 
-```sql
-IMPORT TABLE clientes FROM "dados/clientes.csv";
-SELECT nome, email FROM clientes WHERE idade > 18 LIMIT 10;
-EXPORT TABLE resultados AS "consulta_clientes.csv";
-```
+  ## Exemplos
 
-### Exemplo 2: Procedure
+  ### Exemplo 1: Importação e Consulta
 
-```sql
-PROCEDURE importar_dados
-  IMPORT TABLE vendas FROM "dados/vendas.csv";
-  IMPORT TABLE produtos FROM "dados/produtos.csv";
-  CREATE TABLE vendas_completas FROM vendas JOIN produtos USING produto_id;
-END PROCEDURE;
+  ```sql
+  IMPORT TABLE clientes FROM "dados/clientes.csv";
+  SELECT nome, email FROM clientes WHERE idade > 18 LIMIT 10;
+  EXPORT TABLE resultados AS "consulta_clientes.csv";
+  ```
 
-CALL importar_dados;
-```
+  ### Exemplo 2: Procedure
 
-## Licença
+  ```sql
+  PROCEDURE importar_dados
+    IMPORT TABLE vendas FROM "dados/vendas.csv";
+    IMPORT TABLE produtos FROM "dados/produtos.csv";
+    CREATE TABLE vendas_completas FROM vendas JOIN produtos USING produto_id;
+  END PROCEDURE;
 
-Este projeto é apenas para fins educativos.
+  CALL importar_dados;
+  ```
+
+  ## Licença
+
+  Este projeto é apenas para fins educativos.

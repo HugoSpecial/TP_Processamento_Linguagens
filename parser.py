@@ -144,18 +144,27 @@ def p_column_list(p):
     column_list : IDENTIFIER
                 | column_list COMMA IDENTIFIER
     """
-    p[0] = [p[1]] if len(p) == 2 else p[1] + [p[3]]
+    if GENERATE_AST:
+        p[0] = [{'op': 'COLUMN', 'args': [p[1]]}] if len(p) == 2 else p[1] + [{'op': 'COLUMN', 'args': [p[3]]}]
+    else:
+        p[0] = [p[1]] if len(p) == 2 else p[1] + [p[3]]
 
 def p_condition_list(p):
     """
     condition_list : condition
                    | condition_list AND condition
     """
-    p[0] = [p[1]] if len(p) == 2 else p[1] + [p[3]]
+    if GENERATE_AST:
+        p[0] = [{'op': 'CONDITION', 'args': [p[1]]}] if len(p) == 2 else p[1] + [{'op': 'CONDITION', 'args': [p[3]]}]
+    else:
+        p[0] = [p[1]] if len(p) == 2 else p[1] + [p[3]]
 
 def p_condition(p):
-    """ condition : IDENTIFIER comparison_operator value"""
-    p[0] = (p[1], p[2], p[3])
+    """ condition : IDENTIFIER comparison_operator value """
+    if GENERATE_AST:
+        p[0] = {'op': 'COMPARE', 'args': [p[1], p[2], p[3]]}
+    else:
+        p[0] = (p[1], p[2], p[3])
 
 def p_comparison_operator(p):
     """
@@ -166,21 +175,27 @@ def p_comparison_operator(p):
                         | LESS_EQUAL
                         | GREATER_EQUAL
     """
-    p[0] = p[1]
+    p[0] = p[1]  # operador em string ('=', '<=', etc.)
 
 def p_procedure_body(p):
     """
     procedure_body : command
                    | procedure_body command
     """
-    p[0] = [p[1]] if len(p) == 2 else p[1] + [p[2]]
+    if GENERATE_AST:
+        p[0] = [p[1]] if len(p) == 2 else p[1] + [p[2]]
+    else:
+        p[0] = [p[1]] if len(p) == 2 else p[1] + [p[2]]
 
 def p_value(p):
     """
     value : STRING
           | NUMBER
     """
-    p[0] = p[1]
+    if GENERATE_AST:
+        p[0] = {'op': 'VALUE', 'args': [p[1]]}
+    else:
+        p[0] = p[1]
 
 def p_empty_command(p):
     """ command : empty"""
