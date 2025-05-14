@@ -208,9 +208,11 @@ def p_empty(p):
 def p_error(p):
     print(f"Erro de sintaxe na entrada: {p}")
 
-def build_parser():
-    yacc.yacc(method='LALR', write_tables=False)
-    return yacc
+def build_parser(ast=False):
+    global GENERATE_AST
+    GENERATE_AST = ast
+    parser = yacc.yacc()
+    return parser
 
 parser = yacc.yacc()
 

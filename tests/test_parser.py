@@ -2,9 +2,10 @@ import sys
 import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-import parser as parser_module
+import parser
 
-parser = parser_module.build_parser()
+# Constrói o parser (se quiser que AST esteja ativo por padrão, usa ast=True)
+parser.build_parser()
 
 examples = [
     'IMPORT TABLE estacoes FROM "estacoes.csv";',
@@ -15,6 +16,6 @@ examples = [
 
 for example in examples:
     print("\nInput:", example)
-    result = parser.parse(example)
+    result = parser.parse_sql(example, ast=True)
     print("AST:", result)
     print("\n")
