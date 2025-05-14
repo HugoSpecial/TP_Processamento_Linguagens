@@ -27,11 +27,6 @@ def run_cql_file(filename):
                     continue
 
                 try:
-                    # if line.upper().startswith("AST:"):
-                    #     expr = line[4:].strip()
-                    #     print(expr)
-                    #     parsed = parse_sql(expr, ast=True)
-                    #     print(f"<< AST: {parsed}")
 
                     # Para capturar o conteúdo entre {- e -}
                     if line.startswith("{-"):
@@ -109,9 +104,8 @@ def run_interactive():
                 break
             else:
                 parsed = parse_sql(expr)
-                parsed2 = parse_sql(expr, ast=True)
                 result = execute_command(parsed)
-                print(f"<< AST: {parsed2}")
+                print(f"<< AST: {parsed}")
 
         except Exception as e:
             print(f"[ERRO] {e}")
@@ -142,7 +136,7 @@ def generate_ast(filename):
                     
                     final_content = " ".join(captured_content.split())
 
-                    parsed = parse_sql("{-" + final_content + "-}", ast=True)
+                    parsed = parse_sql("{-" + final_content + "-}")
                     print(f"<< AST: {parsed}")
 
                     captured_content = ""
@@ -162,7 +156,7 @@ def generate_ast(filename):
                     
                     single_line_procedure = " ".join(procedure_content.split())                        
 
-                    parsed = parse_sql(single_line_procedure, ast=True)
+                    parsed = parse_sql(single_line_procedure)
                     print(f"<< AST: {parsed}")
 
                     procedure_content = ""
@@ -174,7 +168,7 @@ def generate_ast(filename):
                 elif inside_block:
                     captured_content += " " + line
                 else:
-                    parsed = parse_sql(line, ast=True)
+                    parsed = parse_sql(line)
                     print(f"<< AST: {parsed}")
 
             except Exception as e:

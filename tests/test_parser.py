@@ -16,6 +16,6 @@ examples = [
 
 for example in examples:
     print("\nInput:", example)
-    result = parser.parse_sql(example, ast=True)
+    result = parser.parse_sql(example)
     print("AST:", result)
     print("\n")
