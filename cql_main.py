@@ -3,6 +3,7 @@ from lexer import lexer
 from parser import parse_sql
 from semantic import execute_command
 from database import database
+import os
 
 def run_cql_file(filename):
     # Variáveis de controlo
@@ -92,6 +93,17 @@ def run_interactive():
     while True:
         try:
             expr = input(">> ").strip()
+
+            if expr.upper().startswith("IMPORT TABLE"):
+                # Procura por FROM "<ficheiro>"
+                import re
+                match = re.search(r'FROM\s+"([^"]+)"', expr, re.IGNORECASE)
+                if match:
+                    filename = match.group(1)
+                    # Se for apenas o nome (sem caminho), prefixa com ./data/
+                    if not os.path.isabs(filename) and not os.path.dirname(filename):
+                        data_path = os.path.join("data", filename)
+                        expr = expr.replace(f'"{filename}"', f'"{data_path}"')
 
             if expr.lower() == 'sair':
                 break
