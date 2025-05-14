@@ -11,6 +11,9 @@ exemplos = [
     "import table clientes from 'clientes.csv';",
     "EXPORT TABLE clientes AS 'clientes_export.csv';",
     "SELECT * FROM observacoes WHERE IntensidadeVentoKM > 3 LIMIT 2;"
+    '-- SELECT * FROM estacoes;'
+    '{- SELECT id FROM estacoes; '
+    'WHERE IntensidadeVentoKM > 3 LIMIT 2;-}'
 ]
 
 for frase in exemplos:
