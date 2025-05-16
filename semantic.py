@@ -112,7 +112,6 @@ def execute_print(command):
     return "\n".join(output)
 
 def execute_select(command):
-    """Executa comandos SELECT com todas as variações"""
     if not command or len(command) < 3:
         return "[ERRO] Comando SELECT inválido: estrutura incorreta"
 
@@ -224,7 +223,6 @@ def create_table_select(new_table, source_table, columns, conditions):
     return f"Tabela '{new_table}' criada com {len(new_data)} linhas (SELECT de '{source_table}')"
 
 def create_table_join(new_table, table1, table2, join_column):
-    """Cria tabela a partir de JOIN"""
     t1 = database.get_table(table1)
     t2 = database.get_table(table2)
     if not t1 or not t2:
@@ -306,7 +304,6 @@ def execute_command(command):
     return f"[ERRO] Comando não reconhecido: {cmd_type}"
 
 def interpret(code):
-    """Função principal de interpretação"""
     parsed = parse_sql(code)
     if not parsed:
         return None
