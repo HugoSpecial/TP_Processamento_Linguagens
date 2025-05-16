@@ -1,19 +1,29 @@
 import csv
+import os
 from database import database
-import parser
+from parser import parse_sql
 
 procedures = {}
 
-def define_procedure(name, commands):
-    procedures[name] = commands
-
-def call_procedure(name):
-
-    if name not in procedures:
-        print(f"[ERRO] Procedimento '{name}' não foi definido.")
-        return
-    for cmd in procedures[name]:
-        execute_command(cmd)
+def evaluate_condition(row, headers, condition):
+    column, operator, value = condition
+    if column not in headers:
+        return False
+    
+    col_index = headers.index(column)
+    cell_value = row[col_index]
+    
+    try:
+        if operator == '=': return str(cell_value) == str(value)
+        if operator == '<>': return str(cell_value) != str(value)
+        if operator == '<': return float(cell_value) < float(value)
+        if operator == '>': return float(cell_value) > float(value)
+        if operator == '<=': return float(cell_value) <= float(value)
+        if operator == '>=': return float(cell_value) >= float(value)
+    except ValueError:
+        return False
+    
+    return False
 
 def process_import(table_name, file_path):
     try:
@@ -21,313 +31,289 @@ def process_import(table_name, file_path):
             csv_reader = csv.reader(file)
             headers = next(csv_reader)
 
-            # Ignora linhas com # no início
+            if not headers:
+                raise ValueError("Ficheiro sem cabeçalhos")
+
             data = []
-            for row in csv_reader:
-                # Ignora linhas com # no início
-                if row[0].startswith('#'):
+            for line_number, row in enumerate(csv_reader, start=2):  # começa no 2 por causa do cabeçalho
+                if not row or row[0].startswith('#'):
                     continue
-
-                # Verifica se a linha tem o número de colunas correto
                 if len(row) != len(headers):
-                    continue  # Ignora linhas com número de colunas inconsistente
-
+                    continue
                 data.append(row)
 
-            # Verifica se há dados válidos para adicionar
-            if not headers:
-                raise ValueError("Arquivo sem cabeçalhos")
-            if not data:
-                raise ValueError("Não há dados válidos para importar")
-
-            # Adiciona a tabela ao base de dados
             database.add_table(table_name, headers, data)
             return True
-
-    except FileNotFoundError:
-        raise Exception(f"Arquivo não encontrado: {file_path}")
     except Exception as e:
-        raise Exception(f"Erro semântico: {str(e)}")
+        raise Exception(f"Erro ao importar: {str(e)}")
 
 
-
-# Função para processar a exportação
 def process_export(table_name, file_path):
     table = database.get_table(table_name)
     if not table:
         raise Exception(f"Tabela '{table_name}' não encontrada")
 
-    headers = table.get('variaveis') or table.get('headers')
-    data = table.get('dados') or table.get('data')
-
-    if headers is None or data is None:
-        raise Exception("Estrutura da tabela inválida")
-
+    headers = table.get('variaveis', [])
+    data = table.get('dados', [])
+    
     try:
         with open(file_path, 'w', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
             writer.writerow(headers)
             writer.writerows(data)
-            print(f"Tabela '{table_name}' exportada com sucesso para '{file_path}'")
+        return True
     except Exception as e:
-        raise Exception(f"Erro ao exportar tabela: {str(e)}")
+        raise Exception(f"Erro ao exportar: {str(e)}")
 
-def evaluate_condition(row, headers, condition):
-    column_name, operator, value = condition
-    if column_name not in headers:
-        return False
-    col_index = headers.index(column_name)
-    column_value = row[col_index]
-
-    if operator == '=':
-        return column_value == value
-    elif operator == '<>':
-        return column_value != value
-    elif operator == '<':
-        return column_value < value
-    elif operator == '>':
-        return column_value > value
-    elif operator == '<=':
-        return column_value <= value
-    elif operator == '>=':
-        return column_value >= value
-    return False
-
-def interpret(code):
-    parsed = parser.parse(code)
-    if not parsed:
-        return None
-
-    # Execute each command
-    for command in parsed:
-        result = execute_command(command)
-        if result:
-            return result
-
-# Função para executar os comandos
-def execute_command(parsed):
-    if parsed is None:
-    # Linha vazia ou comentário ignorado
-        return "Parse inválido ou comando vazio."
-
-    if not parsed or len(parsed) < 1:
-        print("[ERRO] Comando inválido.")
-        return "Parse inválido ou comando vazio."
-
-    cmd_type = parsed[0]
-
-    if cmd_type == 'IMPORT' and len(parsed) >= 3:
-        _, table_name, file_path = parsed
+def execute_import(command):
+    _, table_name, file_path = command
+    try:
         if process_import(table_name, file_path):
-            print(f"Tabela '{table_name}' importada com sucesso!")
+            return f"Tabela '{table_name}' importada com sucesso!"
+    except Exception as e:
+        return f"[ERRO] {str(e)}"
 
-    elif cmd_type == 'SELECT_ALL' and len(parsed) >= 2:
-        table_name = parsed[1]
-        table = database.get_table(table_name)
-        if table is None:
-            print(f"[ERRO] Tabela '{table_name}' não encontrada.")
-        elif 'dados' not in table:
-            print(f"[ERRO] Estrutura da tabela '{table_name}' inválida.")
-        elif not table['dados']:
-            print(f"A tabela '{table_name}' está vazia.")
-        else:
-            print(f"Selecionando todos os dados da tabela '{table_name}':")
-            for row in table['dados']:
-                print(row)
+def execute_export(command):
+    _, table_name, file_path = command
+    try:
+        if process_export(table_name, file_path):
+            return f"Tabela '{table_name}' exportada com sucesso!"
+    except Exception as e:
+        return f"[ERRO] {str(e)}"
 
-    elif cmd_type == 'SELECT_COLUMNS' and len(parsed) >= 3:
-        table_name, columns = parsed[1], parsed[2]
-        table = database.get_table(table_name)
-        if table:
-            print(f"Selecionando colunas '{', '.join(columns)}' da tabela '{table_name}':")
-            col_indexes = [table['variaveis'].index(col) for col in columns]
-            for row in table['dados']:
-                print([row[i] for i in col_indexes])
+def execute_discard(command):
+    _, table_name = command
+    if database.discard_table(table_name):
+        return f"Tabela '{table_name}' descartada com sucesso"
+    return f"[ERRO] Tabela '{table_name}' não encontrada"
 
-    elif cmd_type == 'EXPORT' and len(parsed) >= 3:
-        _, table_name, file_path = parsed
-        process_export(table_name, file_path)
+def execute_rename(command):
+    _, old_name, new_name = command
+    if database.rename_table(old_name, new_name):
+        return f"Tabela renomeada de '{old_name}' para '{new_name}'"
+    else:
+        return f"[ERRO] Falha ao renomear tabela"
+    return 
 
-    elif cmd_type == 'DISCARD' and len(parsed) >= 2:
-        table_name = parsed[1]
-        table = database.get_table(table_name)
-        if table:
-            table['dados'] = []
-            print(f"Dados da tabela '{table_name}' excluídos com sucesso.")
-        else:
-            print(f"[ERRO] Tabela '{table_name}' não encontrada.")
-
-    elif cmd_type == 'RENAME' and len(parsed) >= 3:
-        old_name, new_name = parsed[1], parsed[2]
-        table = database.get_table(old_name)
-        if table:
-            database.rename_table(old_name, new_name)
-            print(f"Tabela '{old_name}' renomeada para '{new_name}'.")
-        else:
-            print(f"[ERRO] Tabela '{old_name}' não encontrada.")
-
-    elif cmd_type == 'PRINT' and len(parsed) >= 2:
-        table_name = parsed[1]
-        table = database.get_table(table_name)
-        if table:
-            for row in table['dados']:
-                print(row)
-        else:
-            print(f"[ERRO] Tabela '{table_name}' não encontrada.")
-
-    elif cmd_type == 'SELECT_ALL_WHERE' and len(parsed) >= 3:
-        table_name, conditions = parsed[1], parsed[2]
-        table = database.get_table(table_name)
-        if table:
-            headers = table['variaveis']
-            print(f"Selecionando todos os dados da tabela '{table_name}' com condições:")
-            for row in table['dados']:
-                if all(evaluate_condition(row, headers, cond) for cond in conditions):
-                    print(row)
-        else:
-            print(f"[ERRO] Tabela '{table_name}' não encontrada.")
-
-    elif cmd_type == 'SELECT_COLUMNS_WHERE' and len(parsed) >= 4:
-        table_name, columns, conditions = parsed[1], parsed[2], parsed[3]
-        table = database.get_table(table_name)
-        if table:
-            headers = table['variaveis']
-            col_indexes = [headers.index(col) for col in columns]
-            for row in table['dados']:
-                if all(evaluate_condition(row, headers, cond) for cond in conditions):
-                    print([row[i] for i in col_indexes])
-        else:
-            print(f"[ERRO] Tabela '{table_name}' não encontrada.")
-
-    elif cmd_type == 'SELECT_ALL_WHERE_LIMIT' and len(parsed) >= 4:
-        table_name, conditions, limit = parsed[1], parsed[2], int(parsed[3])
-        table = database.get_table(table_name)
-        if table:
-            headers = table['variaveis']
-            count = 0
-            for row in table['dados']:
-                if all(evaluate_condition(row, headers, cond) for cond in conditions):
-                    print(row)
-                    count += 1
-                if count == limit:
-                    break
-        else:
-            print(f"[ERRO] Tabela '{table_name}' não encontrada.")
-
-    elif cmd_type == 'SELECT_COLUMNS_WHERE_LIMIT' and len(parsed) >= 5:
-        table_name, columns, conditions, limit = parsed[1], parsed[2], parsed[3], int(parsed[4])
-        table = database.get_table(table_name)
-        if table:
-            headers = table['variaveis']
-            col_indexes = [headers.index(col) for col in columns]
-            count = 0
-            for row in table['dados']:
-                if all(evaluate_condition(row, headers, cond) for cond in conditions):
-                    print([row[i] for i in col_indexes])
-                    count += 1
-                if count == limit:
-                    break
-        else:
-            print(f"[ERRO] Tabela '{table_name}' não encontrada.")
+def execute_print(command):
+    _, table_name = command
+    table = database.get_table(table_name)
+    if not table:
+        return f"[ERRO] Tabela '{table_name}' não encontrada"
     
-    elif cmd_type == 'CREATE_TABLE':
-        new_table_name, source_table, columns, conditions = parsed[1], parsed[2], parsed[3], parsed[4]
-        table = database.get_table(source_table)
-        if not table:
-            print(f"[ERRO] Tabela de origem '{source_table}' não encontrada.")
-            return
+    output = []
+    headers = table['variaveis']
+    output.append(" | ".join(headers))
+    output.append("-" * len(" | ".join(headers)))
+    
+    for row in table['dados']:
+        output.append(" | ".join(str(x) for x in row))
+    
+    return "\n".join(output)
 
-        headers = table['variaveis']
-        data = table['dados']
+def execute_select(command):
+    """Executa comandos SELECT com todas as variações"""
+    if not command or len(command) < 3:
+        return "[ERRO] Comando SELECT inválido: estrutura incorreta"
 
-        # Seleciona as colunas
-        if columns == '*':
-            selected_headers = headers
-            selected_indexes = list(range(len(headers)))
+    cmd_type = command[0]
+    
+    
+    columns = table_name = conditions = limit = None
+    
+    
+    if cmd_type == "SELECT":
+        if len(command) == 3:  # SELECT columns FROM table
+            columns, table_name = command[1], command[2]
+        elif len(command) == 4:  # Com WHERE ou LIMIT
+            if isinstance(command[3], list):  # Tem WHERE
+                columns, table_name, conditions = command[1], command[2], command[3]
+            else:  # Tem LIMIT
+                columns, table_name, limit = command[1], command[2], command[3]
+        elif len(command) == 5:  # Com WHERE e LIMIT
+            columns, table_name, conditions, limit = command[1], command[2], command[3], command[4]
+    
+    elif cmd_type == "SELECT_WHERE_LIMIT":
+        # Formato: ('SELECT_WHERE_LIMIT', columns, table_name, conditions, limit)
+        if len(command) == 5:
+            columns, table_name, conditions, limit = command[1], command[2], command[3], command[4]
         else:
-            try:
-                selected_headers = columns
-                selected_indexes = [headers.index(col) for col in columns]
-            except ValueError as e:
-                print(f"[ERRO] Coluna não encontrada: {e}")
-                return
+            return "[ERRO] Comando SELECT_WHERE_LIMIT inválido: estrutura incorreta"
+    else:
+        return f"[ERRO] Tipo de comando SELECT não reconhecido: {cmd_type}"
 
-        # Filtra os dados com base nas condições
+    table = database.get_table(table_name)
+    if not table:
+        return f"[ERRO] Tabela '{table_name}' não encontrada"
+    
+    headers = table['variaveis']
+    data = table['dados']
+    
+    if columns == '*':
+        col_indices = list(range(len(headers)))
+        selected_headers = headers
+    else:
+        try:
+            col_indices = [headers.index(col) for col in columns]
+            selected_headers = columns
+        except ValueError as e:
+            return f"[ERRO] Coluna não encontrada: {str(e)}"
+    
+    if conditions:
+        filtered_data = []
+        for row in data:
+            if all(evaluate_condition(row, headers, cond) for cond in conditions):
+                filtered_data.append(row)
+    else:
+        filtered_data = data
+    
+    if limit:
+        try:
+            limit = int(limit)
+            filtered_data = filtered_data[:limit]
+        except ValueError:
+            return f"[ERRO] Valor de LIMIT inválido: {limit}"
+
+    output = []
+    output.append(" | ".join(selected_headers))
+    output.append("-" * len(" | ".join(selected_headers)))
+    
+    for row in filtered_data:
+        output.append(" | ".join(str(row[i]) for i in col_indices))
+    
+    return "\n".join(output)
+    
+    output = []
+    output.append(" | ".join(selected_headers))
+    output.append("-" * len(" | ".join(selected_headers)))
+    
+    for row in filtered_data:
+        if len(row) != len(headers):
+            continue  # Ignora a linha malformada
+        output.append(" | ".join(str(row[i]) for i in col_indices))
+    
+    return "\n".join(output)
+
+def create_table_select(new_table, source_table, columns, conditions):
+    source = database.get_table(source_table)
+    if not source:
+        return f"[ERRO] Tabela de origem '{source_table}' não encontrada"
+    
+    headers = source['variaveis']
+    data = source['dados']
+    
+    if columns == '*':
+        col_indices = list(range(len(headers)))
+        new_headers = headers
+    else:
+        try:
+            col_indices = [headers.index(col) for col in columns]
+            new_headers = columns
+        except ValueError as e:
+            return f"[ERRO] Coluna não encontrada: {str(e)}"
+    
+    if conditions:
         new_data = []
         for row in data:
             if all(evaluate_condition(row, headers, cond) for cond in conditions):
-                new_data.append([row[i] for i in selected_indexes])
-
-        # Cria nova tabela na base de dados
-        database.add_table(new_table_name, selected_headers, new_data)
-        print(f"Tabela '{new_table_name}' criada com sucesso com {len(new_data)} linha(s).")
-
-    elif cmd_type == 'SELECT_ALL_LIMIT' and len(parsed) >= 3:
-        table_name, limit = parsed[1], int(parsed[2])
-        table = database.get_table(table_name)
-        if table:
-            for row in table['dados'][:limit]:
-                print(row)
-        else:
-            print(f"[ERRO] Tabela '{table_name}' não encontrada.")
-
-    elif cmd_type == 'SELECT_COLUMNS_LIMIT' and len(parsed) >= 4:
-        table_name, columns, limit = parsed[1], parsed[2], int(parsed[3])
-        table = database.get_table(table_name)
-        if table:
-            headers = table['variaveis']
-            col_indexes = [headers.index(col) for col in columns]
-            for row in table['dados'][:limit]:
-                print([row[i] for i in col_indexes])
-        else:
-            print(f"[ERRO] Tabela '{table_name}' não encontrada.")
-
-    elif cmd_type == 'CREATE_TABLE_JOIN':
-        new_table = parsed[1]
-        table1 = parsed[2]
-        table2 = parsed[3]
-        join_key = parsed[4]
-
-        # Obter as tabelas da base de dados
-        t1 = database.get_table(table1)
-        t2 = database.get_table(table2)
-
-        if not t1:
-            print(f"[ERRO] Tabela '{table1}' não encontrada.")
-            return
-        if not t2:
-            print(f"[ERRO] Tabela '{table2}' não encontrada.")
-            return
-
-        # Verificar se a join_key existe em ambas as tabelas
-        if join_key not in t1['variaveis'] or join_key not in t2['variaveis']:
-            print(f"[ERRO] Chave de junção '{join_key}' não encontrada em uma ou ambas as tabelas.")
-            return
-
-        # Índices da join_key em ambas as tabelas
-        t1_key_index = t1['variaveis'].index(join_key)
-        t2_key_index = t2['variaveis'].index(join_key)
-
-        # Criar cabeçalhos para a nova tabela
-        new_headers = t1['variaveis'] + [col for col in t2['variaveis'] if col != join_key]
-
-        # Criar os dados da nova tabela com base na junção
-        new_data = []
-        for row1 in t1['dados']:
-            for row2 in t2['dados']:
-                if row1[t1_key_index] == row2[t2_key_index]:
-                    new_row = row1 + [row2[i] for i in range(len(row2)) if i != t2_key_index]
-                    new_data.append(new_row)
-
-        # Adicionar a nova tabela a base de dados
-        database.add_table(new_table, new_headers, new_data)
-        print(f"Tabela '{new_table}' criada com sucesso com {len(new_data)} linha(s).")  
+                new_data.append([row[i] for i in col_indices])
+    else:
+        new_data = [[row[i] for i in col_indices] for row in data]
     
-    elif cmd_type == 'DEFINE_PROCEDURE' and len(parsed) >= 3:
-        proc_name = parsed[1]
-        commands = parsed[2]
-        define_procedure(proc_name, commands)
+    database.add_table(new_table, new_headers, new_data)
+    return f"Tabela '{new_table}' criada com {len(new_data)} linhas (SELECT de '{source_table}')"
 
-    elif cmd_type == 'CALL_PROCEDURE' and len(parsed) >= 2:
-        proc_name = parsed[1]
-        call_procedure(proc_name)
+def create_table_join(new_table, table1, table2, join_column):
+    """Cria tabela a partir de JOIN"""
+    t1 = database.get_table(table1)
+    t2 = database.get_table(table2)
+    if not t1 or not t2:
+        return f"[ERRO] {'Tabela 1' if not t1 else 'Tabela 2'} não encontrada"
+    
+    if join_column not in t1['variaveis'] or join_column not in t2['variaveis']:
+        return f"[ERRO] Coluna de junção '{join_column}' não encontrada em ambas as tabelas"
+    
+    t1_key_idx = t1['variaveis'].index(join_column)
+    t2_key_idx = t2['variaveis'].index(join_column)
+    
+    new_headers = t1['variaveis'] + [h for h in t2['variaveis'] if h != join_column]
+    
+    new_data = []
+    for row1 in t1['dados']:
+        for row2 in t2['dados']:
+            if str(row1[t1_key_idx]) == str(row2[t2_key_idx]):
+                new_row = row1 + [row2[i] for i in range(len(row2)) if i != t2_key_idx]
+                new_data.append(new_row)
+    
+    database.add_table(new_table, new_headers, new_data)
+    return f"Tabela '{new_table}' criada com {len(new_data)} linhas (JOIN de '{table1}' e '{table2}' em '{join_column}')"
+
+def execute_procedure(command):
+    if command[0] == "PROCEDURE":
+        _, name, body = command
+        procedures[name] = body
+        return f"Procedimento '{name}' definido com {len(body)} comandos"
+    
+    elif command[0] == "CALL":
+        _, name = command
+        if name not in procedures:
+            return f"[ERRO] Procedimento '{name}' não definido"
+        
+        results = []
+        for cmd in procedures[name]:
+            result = execute_command(cmd)
+            if result:
+                results.append(result)
+        
+        return "\n".join(results) if results else None
+    
+    return f"[ERRO] Comando de procedimento inválido: {command}"
+
+def execute_command(command):
+    if not command:
+        return None
+    
+    cmd_type = command[0]
+    
+    if cmd_type == "IMPORT":
+        return execute_import(command)
+    elif cmd_type == "EXPORT":
+        return execute_export(command)
+    elif cmd_type == "DISCARD":
+        return execute_discard(command)
+    elif cmd_type == "RENAME":
+        return execute_rename(command)
+    elif cmd_type == "PRINT":
+        return execute_print(command)
+    elif cmd_type.startswith("SELECT"):
+        return execute_select(command)
+    elif cmd_type == "CREATE_TABLE_SELECT":
+        if len(command) == 5:
+            return create_table_select(command[1], command[2], command[3], command[4])
+        else:
+            return "[ERRO] Comando CREATE_TABLE_SELECT inválido: estrutura incorreta"
+    
+    elif cmd_type == "CREATE_TABLE_JOIN" or cmd_type == "CREATE_TABLE_JOIN":
+        # Formato: ('CREATE_TABLE_JOIN', new_table, table1, table2, join_column)
+        if len(command) == 5:
+            return create_table_join(command[1], command[2], command[3], command[4])
+        else:
+            return "[ERRO] Comando CREATE_TABLE_JOIN inválido: estrutura incorreta"
+    
+    elif cmd_type in ("PROCEDURE", "CALL"):
+        return execute_procedure(command)
+    
+    return f"[ERRO] Comando não reconhecido: {cmd_type}"
+
+def interpret(code):
+    """Função principal de interpretação"""
+    parsed = parse_sql(code)
+    if not parsed:
+        return None
+
+    results = []
+    for command in parsed:
+        result = execute_command(command)
+        if result:
+            results.append(result)
+    return results if results else None

@@ -7,9 +7,7 @@ import lexer as lex_grammar
 lexer = lex_grammar.build()
 
 exemplos = [
-    "SELECT * FROM clientes;",
-    "import table clientes from 'clientes.csv';",
-    "EXPORT TABLE clientes AS 'clientes_export.csv';",
+    "SELECT * FROM observacoes;",
     "SELECT * FROM observacoes WHERE IntensidadeVentoKM > 3 LIMIT 2;"
     '-- SELECT * FROM estacoes;'
     '{- SELECT id FROM estacoes; '

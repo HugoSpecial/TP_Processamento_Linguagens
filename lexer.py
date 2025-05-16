@@ -1,6 +1,5 @@
 from ply import lex
 
-# Adicionando os tokens necessários
 tokens = (
     'IMPORT',
     'CREATE',
@@ -37,7 +36,6 @@ tokens = (
     "CALL",
 )
 
-# Definindo palavras reservadas
 reserved = {
     'IMPORT': 'IMPORT',
     'CREATE':'CREATE',
@@ -60,7 +58,6 @@ reserved = {
     "CALL": "CALL",
 }
 
-# Expressões regulares simples
 t_SEMICOLON = r';'
 t_COMMA = r',' 
 t_STAR = r'\*'
@@ -91,8 +88,8 @@ def t_comment(t):
     pass
 
 def t_MULTI_COMMENT(t):
-    r'\{-[\s\S]*?-\}'  # Captura o conteúdo entre {--} e --}
-    pass  # Ignora o conteúdo do comentário
+    r'\{-[\s\S]*?-\}'
+    pass
 
 def t_NEWLINE(t):
     r'\n+'
@@ -106,5 +103,4 @@ def build():
     lexer = lex.lex()
     return lexer
 
-# Construir o lexer
 lexer = lex.lex()
