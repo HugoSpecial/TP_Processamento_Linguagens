@@ -35,7 +35,7 @@ def process_import(table_name, file_path):
                 raise ValueError("Ficheiro sem cabeçalhos")
 
             data = []
-            for line_number, row in enumerate(csv_reader, start=2):  # começa no 2 por causa do cabeçalho
+            for line_number, row in enumerate(csv_reader, start=2):
                 if not row or row[0].startswith('#'):
                     continue
                 if len(row) != len(headers):
@@ -188,7 +188,7 @@ def execute_select(command):
     
     for row in filtered_data:
         if len(row) != len(headers):
-            continue  # Ignora a linha malformada
+            continue
         output.append(" | ".join(str(row[i]) for i in col_indices))
     
     return "\n".join(output)
@@ -292,7 +292,6 @@ def execute_command(command):
             return "[ERRO] Comando CREATE_TABLE_SELECT inválido: estrutura incorreta"
     
     elif cmd_type == "CREATE_TABLE_JOIN" or cmd_type == "CREATE_TABLE_JOIN":
-        # Formato: ('CREATE_TABLE_JOIN', new_table, table1, table2, join_column)
         if len(command) == 5:
             return create_table_join(command[1], command[2], command[3], command[4])
         else:

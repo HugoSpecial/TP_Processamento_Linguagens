@@ -17,7 +17,7 @@ def p_command(p):
               | create_command
               | procedure_command
               | call_command
-              | SEMICOLON"""  # Comando vazio
+              | SEMICOLON"""
     p[0] = p[1] if len(p) > 1 else None
 
 def p_table_command(p):
@@ -61,7 +61,7 @@ def p_select_command(p):
 
 def p_select_where_command(p):
     """select_where_command : SELECT columns FROM IDENTIFIER WHERE condition_list SEMICOLON"""
-    p[0] = ('SELECT', p[2], p[4], p[6])  # Alterado para 'SELECT' em vez de 'SELECT_WHERE'
+    p[0] = ('SELECT', p[2], p[4], p[6])
 
 
 def p_select_simple_limit(p):
