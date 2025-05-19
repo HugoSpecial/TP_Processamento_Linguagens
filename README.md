@@ -1,6 +1,10 @@
-  # Trabalho Prático - Processamento de Linguagens
+[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/uCocwY5e)
+Processamento de Linguagens (ESI) - laboral
+-----
 
-  ## Grupo Nº 09
+## trabalho prático 
+
+### grupo  09   
 
   | Número | Nome             |
   |--------|------------------|
@@ -8,18 +12,50 @@
   | 27966  | Paulo Gonçalves  |
   | 27969  | Marco Cardoso    |
 
-  ## Descrição
+### estrutura do projeto
 
-  Este projeto implementa um interpretador para uma linguagem de consulta personalizada (CQL) que permite:
+  [/doc](./doc)   documentação de apoio do projeto desenvolvido / relatório do trabalho prático
+  
+  [/data](./data) ficheiros de dados a serem usados no programa (.csv) 
 
-  - Importar/exportar dados de tabelas em formato CSV  
-  - Executar operações básicas de base de dados  
-  - Definir e executar procedimentos armazenados  
-  - Analisar a estrutura sintática dos comandos  
+  [/input](./input) exemplos de código na linguagem CQL - Comma Query Language  (.cql)
 
-  ---
+  [/tests](./tests) execução de testes aos analisadores
 
-  ## Funcionalidades Principais
+### dependências de módulos externos 
+
+## PLY
+  ```bash
+  pip install ply
+  ```
+
+### exemplos de utilização 
+
+#### ficheiro de entrada
+
+```bash
+python main.py ./input/ficheiro.cql 
+```
+
+#### mostragem de Árvore de Sintaxe Abstrata
+
+  ```bash
+  python cql_main.py ficheiro.cql ast
+  ```
+
+#### de forma interativa (um comando de cada vez)
+
+```bash
+python main.py 
+>> IMPORT TABLE obs FROM "observacoes.csv" ;
+>> SELECT * FROM obs;
+['E1', '2.5', '23.2', '133.2', 'NE', '0.7', '58.0', '2025-04-10T19:00']
+['E2', '15.1', '12.5', '679.6', 'E', '0.0', '4.2', '2025-04-10T19:00']
+['E3', '4.0', '16.4', '0.0', 'NE', '0.0', '1.1', '2025-04-10T19:00']
+['E4', '3.6', '16.8', '1.6', 'SW', '0.0', '1.0', '2025-04-10T19:00']
+```
+
+## Funcionalidades Principais
 
   ### Comandos de Tabela
 
@@ -67,71 +103,3 @@
 
   - `CALL [nome];`  
     Executa procedimento
-
-
-  ## Instalação
-
-  Clone o repositório:
-
-  ```bash
-  git clone https://github.com/HugoSpecial/TP_Processamento_Linguagens.git
-  ```
-
-  Instale as dependências:
-
-  ```bash
-  pip install ply
-  ```
-
-  ---
-
-  ## Uso
-
-  ### Modo de Execução
-
-  ```bash
-  python cql_main.py ficheiro.cql
-  ```
-
-  ### Modo de Execução com mostragem de Árvore de Sintaxe Abstrata
-
-  ```bash
-  python cql_main.py ficheiro.cql ast
-  ```
-
-  ### Modo Interativo
-
-  ```bash
-  python cql_main.py
-  >> import table obs from "data/observacoes.csv";
-  Tabela 'obs' importada com sucesso!
-  << AST: {'op': 'IMPORT', 'args': ['obs', 'data/observacoes.csv']}
-  ```
-
-  ---
-
-  ## Exemplos
-
-  ### Exemplo 1: Importação e Consulta
-
-  ```sql
-  IMPORT TABLE clientes FROM "dados/clientes.csv";
-  SELECT nome, email FROM clientes WHERE idade > 18 LIMIT 10;
-  EXPORT TABLE resultados AS "consulta_clientes.csv";
-  ```
-
-  ### Exemplo 2: Procedure
-
-  ```sql
-  PROCEDURE importar_dados
-    IMPORT TABLE vendas FROM "dados/vendas.csv";
-    IMPORT TABLE produtos FROM "dados/produtos.csv";
-    CREATE TABLE vendas_completas FROM vendas JOIN produtos USING produto_id;
-  END PROCEDURE;
-
-  CALL importar_dados;
-  ```
-
-  ## Licença
-
-  Este projeto é apenas para fins educativos.
