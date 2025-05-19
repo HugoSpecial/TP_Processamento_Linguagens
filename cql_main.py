@@ -1,190 +1,110 @@
 import sys
-from lexer import lexer
-from parser import parse_sql
-from semantic import execute_command
-from database import database
 import os
+from lexer import lexer
+from parser import parser, parse_sql
+from semantic import interpret
+from database import database
+from pprint import PrettyPrinter
+import re
 
-def run_cql_file(filename):
-    # Variáveis de controlo
-    inside_block = False
-    inside_procedure = False
-    procedure_content = ""  # Para armazenar o conteúdo da procedure
-    captured_content = ""  # Vai armazenar tudo em uma única linha
+pp = PrettyPrinter(sort_dicts=False)
+
+def preprocess_import_command(expr):
+    if not expr.upper().startswith("IMPORT TABLE"):
+        return expr
+        
+    match = re.search(r'FROM\s+("[^"]+"|\S+)', expr, re.IGNORECASE)
+    if not match:
+        return expr
+        
+    filename = match.group(1).strip('"')
     
-    try:
-        with open(filename, 'r') as file:
-            line_number = 0
-            if not filename.endswith(".cql"):
-                print(f"Erro: O ficheiro {filename} tem de ter a extensão .cql")
-                sys.exit(1)
+    if not os.path.exists(filename):
+        data_path = os.path.join("data", filename)
+        if os.path.exists(data_path):
+            expr = expr.replace(match.group(1), f'"{data_path}"')
+        else:
+            print(f"[AVISO] Ficheiro '{filename}' não encontrado na pasta atual nem em 'data/'")
+    
+    return expr
 
-            for line in file:
-                line_number += 1
-                line = line.strip()
+def read_file(filename):
+    with open(filename, "r", encoding='utf-8') as file:
+        return file.read()
 
-                if not line:
-                    continue
-
-                try:
-                    # if line.upper().startswith("AST:"):
-                    #     expr = line[4:].strip()
-                    #     print(expr)
-                    #     parsed = parse_sql(expr, ast=True)
-                    #     print(f"<< AST: {parsed}")
-
-                    # Para capturar o conteúdo entre {- e -}
-                    if line.startswith("{-"):
-                        inside_block = True
-                        captured_content = line[2:]
-
-                    elif line.endswith("-}") and inside_block:
-                        inside_block = False
-                        captured_content += " " + line[:-2]
-                        
-                        final_content = " ".join(captured_content.split())
-
-                        parsed = parse_sql("{-" + final_content + "-}")
-                        result = execute_command(parsed)
-
-                        captured_content = ""
-
-                    elif line.upper().startswith("PROCEDURE"):
-                        # Inicia a captura do PROCEDURE
-                        if(line.upper().endswith("END")):
-                            parsed = parse_sql(line)
-                            result = execute_command(parsed)
-                        else:
-                            inside_procedure = True
-                            procedure_content = line
-
-                    elif line.upper().startswith("END") and inside_procedure:
-                        inside_procedure = False
-                        procedure_content += " " + line.strip()
-                        
-                        single_line_procedure = " ".join(procedure_content.split())                        
-
-                        parsed = parse_sql(single_line_procedure)
-                        result = execute_command(parsed)
-
-                        procedure_content = ""
-
-                    elif inside_procedure:
-
-                        procedure_content += " " + line.strip()
-
-                    elif inside_block:
-                        captured_content += " " + line
-                    else:
-                        parsed = parse_sql(line)
-                        result = execute_command(parsed)
-
-                except Exception as e:
-                    print(f"[ERRO] Linha {line_number}: '{line}'")
-                    print(f"       {str(e)}")
-
-    except FileNotFoundError:
-        print(f"[ERRO] Arquivo '{filename}' não encontrado")
-    except Exception as e:
-        print(f"[ERRO] Falha ao processar o arquivo '{filename}': {str(e)}")
-
-def run_interactive():
-    print("Escreva as expressões ou 'sair' para sair.")
+def run_interactive_mode():
+    print("Modo interativo. Use 'SAIR' para sair.")
     while True:
         try:
-            expr = input(">> ").strip()
-
-            if expr.upper().startswith("IMPORT TABLE"):
-                # Procura por FROM "<ficheiro>"
-                import re
-                match = re.search(r'FROM\s+"([^"]+)"', expr, re.IGNORECASE)
-                if match:
-                    filename = match.group(1)
-                    # Se for apenas o nome (sem caminho), prefixa com ./data/
-                    if not os.path.isabs(filename) and not os.path.dirname(filename):
-                        data_path = os.path.join("data", filename)
-                        expr = expr.replace(f'"{filename}"', f'"{data_path}"')
-
-            if expr.lower() == 'sair':
-                break
-            else:
-                parsed = parse_sql(expr)
-                parsed2 = parse_sql(expr, ast=True)
-                result = execute_command(parsed)
-                print(f"<< AST: {parsed2}")
-
-        except Exception as e:
-            print(f"[ERRO] {e}")
-
-def generate_ast(filename):
-
-    # Variáveis de controlo
-    inside_block = False
-    inside_procedure = False
-    procedure_content = ""  # Para armazenar o conteúdo da procedure
-    captured_content = ""  # Vai armazenar tudo em uma única linha
-
-    with open(filename, 'r') as file:
-        for line in file:
-            line = line.strip()
+            line = input(">> ").strip()
             if not line:
                 continue
-
-            try:
-
-                if line.startswith("{-"):
-                    inside_block = True
-                    captured_content = line[2:]
-
-                elif line.endswith("-}") and inside_block:
-                    inside_block = False
-                    captured_content += " " + line[:-2]
-                    
-                    final_content = " ".join(captured_content.split())
-
-                    parsed = parse_sql("{-" + final_content + "-}", ast=True)
-                    print(f"<< AST: {parsed}")
-
-                    captured_content = ""
-
-                elif line.upper().startswith("PROCEDURE"):
-                    # Inicia a captura do PROCEDURE
-                    if(line.upper().endswith("END")):
-                        parsed = parse_sql(line, ast=True)
-                        print(f"<< AST: {parsed}")
-                    else:
-                        inside_procedure = True
-                        procedure_content = line
-
-                elif line.upper().startswith("END") and inside_procedure:
-                    inside_procedure = False
-                    procedure_content += " " + line.strip()
-                    
-                    single_line_procedure = " ".join(procedure_content.split())                        
-
-                    parsed = parse_sql(single_line_procedure, ast=True)
-                    print(f"<< AST: {parsed}")
-
-                    procedure_content = ""
-
-                elif inside_procedure:
-
-                    procedure_content += " " + line.strip()
-
-                elif inside_block:
-                    captured_content += " " + line
+            if line.upper() == "SAIR":
+                break
+                
+            line = preprocess_import_command(line)
+            
+            # Mostra AST e executa
+            parsed = parse_sql(line)
+            print("Arvore de Sintaxe Abstrata:")
+            pp.pprint(parsed)
+            
+            result = interpret(line)
+            if result:
+                if isinstance(result, list):
+                    for res in result:
+                        print(f"<< {res}")
                 else:
-                    parsed = parse_sql(line, ast=True)
-                    print(f"<< AST: {parsed}")
+                    print(f"<< {result}")
+        except KeyboardInterrupt:
+            print("\nUse 'sair' para sair.")
+            continue
+        except Exception as e:
+            print(f"[ERRO] {str(e)}", file=sys.stderr)
 
-            except Exception as e:
-                print(f"Erro ao processar linha: {line}")
-                print(f"Detalhes: {e}")    
+
+def run_file_mode(filename, show_ast=True, execute_commands=True):
+    if not os.path.exists(filename):
+        print(f"Error: O ficheiro {filename} nao existe.", file=sys.stderr)
+        sys.exit(1)
+    if not filename.endswith(".cql"):
+        print(f"Error: O ficheiro {filename} tem de ter extensao .cql", file=sys.stderr)
+        sys.exit(1)
+
+    # Le todo o ficheiro de entrada
+    content = read_file(filename)
+
+    try:
+        parsed = parse_sql(content)
+        
+        if show_ast:
+            base_name = os.path.splitext(os.path.basename(filename))[0]
+            print("\nArvore de Sintaxe Abstrata:")
+            print("\n")
+            pp.pprint(parsed)
+            print("\n")
+        
+        if execute_commands:
+            results = interpret(content)
+            if results:
+                if isinstance(results, list):
+                    for i, res in enumerate(results, 1):
+                        print("\n")
+                        print(res)
+
+    except Exception as e:
+        print(e, file=sys.stderr)
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2:
-        run_cql_file(sys.argv[1])
-    elif len(sys.argv) > 2 and sys.argv[2].upper() == "AST":
-        generate_ast(sys.argv[1])
+    if len(sys.argv) == 1:
+        run_interactive_mode()
+    elif len(sys.argv) == 2:
+        run_file_mode(sys.argv[1], show_ast=False, execute_commands=True)
+    elif len(sys.argv) == 3 and sys.argv[2].lower() == "ast":
+        run_file_mode(sys.argv[1], show_ast=True, execute_commands=False)
     else:
-        run_interactive()
+        print("Uso:")
+        print("  python cql_main.py                     - Modo interativo")
+        print("  python cql_main.py arquivo.cql         - Executa comandos do arquivo")
+        print("  python cql_main.py arquivo.cql ast     - Mostra apenas a AST do arquivo")
+        sys.exit(1)
