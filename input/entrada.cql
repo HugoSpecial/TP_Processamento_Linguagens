@@ -7,7 +7,7 @@ PROCEDURE atualizar_observacoes DO
 CREATE TABLE mais_quentes SELECT * FROM observacoes WHERE Temperatura > 22;
 print table mais_quentes;
 CREATE TABLE completo FROM estacoes JOIN observacoes USING(Id);
--- print table completo;
+print table completo;
 END
 
 CALL atualizar_observacoes;

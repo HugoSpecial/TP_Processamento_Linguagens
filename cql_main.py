@@ -45,6 +45,7 @@ def run_interactive_mode():
                 
             line = preprocess_import_command(line)
             
+            # Mostra AST e executa
             parsed = parse_sql(line)
             print("Arvore de Sintaxe Abstrata:")
             pp.pprint(parsed)
@@ -71,6 +72,7 @@ def run_file_mode(filename, show_ast=True, execute_commands=True):
         print(f"Error: O ficheiro {filename} tem de ter extensao .cql", file=sys.stderr)
         sys.exit(1)
 
+    # Le todo o ficheiro de entrada
     content = read_file(filename)
 
     try:

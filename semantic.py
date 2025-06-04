@@ -30,23 +30,16 @@ def process_import(table_name, file_path):
         with open(file_path, 'r', encoding='utf-8') as file:
             csv_reader = csv.reader(file)
             headers = next(csv_reader)
-
+            
+            data = [row for row in csv_reader if row and not row[0].startswith('#')]
+            
             if not headers:
-                raise ValueError("Ficheiro sem cabeçalhos")
-
-            data = []
-            for line_number, row in enumerate(csv_reader, start=2):
-                if not row or row[0].startswith('#'):
-                    continue
-                if len(row) != len(headers):
-                    continue
-                data.append(row)
-
+                raise ValueError("Arquivo sem cabeçalhos")
+            
             database.add_table(table_name, headers, data)
             return True
     except Exception as e:
         raise Exception(f"Erro ao importar: {str(e)}")
-
 
 def process_export(table_name, file_path):
     table = database.get_table(table_name)
@@ -92,7 +85,7 @@ def execute_rename(command):
     if database.rename_table(old_name, new_name):
         return f"Tabela renomeada de '{old_name}' para '{new_name}'"
     else:
-        return f"[ERRO] Falha ao renomear tabela"
+        return f"[ERRO] Falha ao renomear tabelaaaaaaaaaaaaa"
     return 
 
 def execute_print(command):
@@ -112,6 +105,7 @@ def execute_print(command):
     return "\n".join(output)
 
 def execute_select(command):
+    """Executa comandos SELECT com todas as variações"""
     if not command or len(command) < 3:
         return "[ERRO] Comando SELECT inválido: estrutura incorreta"
 
@@ -170,17 +164,6 @@ def execute_select(command):
         output.append(" | ".join(str(row[i]) for i in col_indices))
     
     return "\n".join(output)
-    
-    output = []
-    output.append(" | ".join(selected_headers))
-    output.append("-" * len(" | ".join(selected_headers)))
-    
-    for row in filtered_data:
-        if len(row) != len(headers):
-            continue
-        output.append(" | ".join(str(row[i]) for i in col_indices))
-    
-    return "\n".join(output)
 
 def create_table_select(new_table, source_table, columns, conditions):
     source = database.get_table(source_table)
@@ -212,6 +195,7 @@ def create_table_select(new_table, source_table, columns, conditions):
     return f"Tabela '{new_table}' criada com {len(new_data)} linhas (SELECT de '{source_table}')"
 
 def create_table_join(new_table, table1, table2, join_column):
+    """Cria tabela a partir de JOIN"""
     t1 = database.get_table(table1)
     t2 = database.get_table(table2)
     if not t1 or not t2:
@@ -281,6 +265,7 @@ def execute_command(command):
             return "[ERRO] Comando CREATE_TABLE_SELECT inválido: estrutura incorreta"
     
     elif cmd_type == "CREATE_TABLE_JOIN" or cmd_type == "CREATE_TABLE_JOIN":
+        # Formato: ('CREATE_TABLE_JOIN', new_table, table1, table2, join_column)
         if len(command) == 5:
             return create_table_join(command[1], command[2], command[3], command[4])
         else:
@@ -292,6 +277,7 @@ def execute_command(command):
     return f"[ERRO] Comando não reconhecido: {cmd_type}"
 
 def interpret(code):
+    """Função principal de interpretação"""
     parsed = parse_sql(code)
     if not parsed:
         return None
