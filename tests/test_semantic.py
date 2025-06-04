@@ -1,4 +1,3 @@
-#! VER ISTO
 import sys
 import os
 

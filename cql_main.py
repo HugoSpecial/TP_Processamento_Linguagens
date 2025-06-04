@@ -14,7 +14,7 @@ def preprocess_import_command(expr):
         return expr
         
     match = re.search(r'FROM\s+("[^"]+"|\S+)', expr, re.IGNORECASE)
-
+    
     if not match:
         return expr
         

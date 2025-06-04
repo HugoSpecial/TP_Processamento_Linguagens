@@ -72,7 +72,7 @@ def p_select_simple_limit(p):
 
 def p_select_where_limit_command(p):
     """select_where_limit_command : SELECT columns FROM IDENTIFIER WHERE condition_list LIMIT NUMBER SEMICOLON"""
-    p[0] = ('SELECT_WHERE_LIMIT', p[2], p[4], p[6], p[8])
+    p[0] = ('SELECT', p[2], p[4], p[6], p[8])
 
 def p_create_command(p):
     """create_command : create_table_select_command

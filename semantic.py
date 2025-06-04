@@ -117,9 +117,7 @@ def execute_select(command):
 
     cmd_type = command[0]
     
-    
     columns = table_name = conditions = limit = None
-    
     
     if cmd_type == "SELECT":
         if len(command) == 3:  # SELECT columns FROM table
@@ -131,15 +129,6 @@ def execute_select(command):
                 columns, table_name, limit = command[1], command[2], command[3]
         elif len(command) == 5:  # Com WHERE e LIMIT
             columns, table_name, conditions, limit = command[1], command[2], command[3], command[4]
-    
-    elif cmd_type == "SELECT_WHERE_LIMIT":
-        # Formato: ('SELECT_WHERE_LIMIT', columns, table_name, conditions, limit)
-        if len(command) == 5:
-            columns, table_name, conditions, limit = command[1], command[2], command[3], command[4]
-        else:
-            return "[ERRO] Comando SELECT_WHERE_LIMIT inválido: estrutura incorreta"
-    else:
-        return f"[ERRO] Tipo de comando SELECT não reconhecido: {cmd_type}"
 
     table = database.get_table(table_name)
     if not table:

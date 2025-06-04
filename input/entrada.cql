@@ -15,3 +15,5 @@ CALL atualizar_observacoes;
 select * from completo where Local = "Terras de Bouro/Barral (CIM)";
 
 Export table completo as "completo.csv";
+
+;;;
